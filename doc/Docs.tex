@@ -1,0 +1,48 @@
+%\documentclass[8pt,twocolumn, a4paper]{article}
+\documentclass[a4paper]{article}
+\setlength{\columnseprule}{0.6pt}
+\usepackage{geometry}
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+\setlength{\parskip}{0pt}
+\linespread{0.7}
+
+\setlength{\parindent}{1pt}
+
+\usepackage{amsmath}
+\usepackage{bm}
+\newcommand{\inlinemath}[1]{$#1$}
+\usepackage{cases}
+
+
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
+\lstset{framextopmargin=50pt,frame=bottomline}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{multirow}
+
+\usepackage{graphicx}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries}   % The style of the section title
+  {\thesection. }                             % a prefix
+  {0em}                          % How much space exists between the prefix and the title
+  {}
+
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+
+\usepackage{verbatim}
+
+\begin{document}
+
+\input{Docs_body}
+
+\end{document}
+
