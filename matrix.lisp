@@ -1,4 +1,32 @@
-;; (aref array row col)
+;; vertex
+;;   3f: model space coord
+;;   3f: normal
+;;   3f: color
+;;   2f: texture coord
+
+(defstruct vertex
+  (coord (make-array 4 :element-type 'single-float))
+  (normal (make-array 3 :element-type 'single-float))
+  (color (make-array 3 :element-type 'single-float))
+  (tex-coorde (make-array 2 :element-type 'single-float)))
+
+(defun interpolate-vertex (v1 v2 pt)
+  (make-vertex :coord (let ((c1 (vertex-coord v1))
+                            (c2 (vertex-coord v2)))
+                        (vec4+ c1 (vec4* (vec4- c2 c1) pt)))
+               :normal (let ((n1 (vertex-normal v1))
+                             (n2 (vertex-normal v2)))
+                         (vec3+ (vec3* n1 (- 1 pt))
+                                (vec3* n2 pt)))
+               :color (let ((color1 (vertex-color v1))
+                            (color2 (vertex-color v2)))
+                        (vec3+ (vec3* color1 (- 1 pt))
+                               (vec3* color2 pt)))
+               :tex-coorde (let ((tc1 (vertex-tex-coorde v1))
+                                 (tc2 (vertex-tex-coorde v2)))
+                             (vec2+ tc1 (vec2* (vec2- tc2 tc1) pt)))))
+
+;; ---------------------------------
 
 (defun multiply-mat (a b)
   (let* ((row (array-dimension a 0))
@@ -156,6 +184,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   ;; https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
   ;; fov-y: angle in degree
   ;; aspect: x/y
+  ;; output: project vertices into view space, with w.
+  ;; **Z will be resulted in positive**
   (let* ((fov-y (* (/ degree-y 180) M_PI))
          (f (/ 1 (tan (/ fov-y 2))))
          (a (/ (+ zfar znear) (- znear zfar)))
@@ -166,3 +196,103 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                   (0.0            ,f    0.0  0.0)
                   (0.0            0.0   ,a   ,b)
                   (0.0            0.0  -1.0  0.0)))))
+
+;; ---------------------------------------------------------
+;; Vector Calculation
+;; ---------------------------------------------------------
+;; vec2
+(defun vec4+ (vec1 vec2)
+  (make-array 4 :element-type 'single-float
+              :initial-contents
+              `(,(+ (aref vec1 0) (aref vec2 0))
+                 ,(+ (aref vec1 1) (aref vec2 1))
+                 ,(+ (aref vec1 2) (aref vec2 2))
+                 ,(+ (aref vec1 3) (aref vec2 3)))))
+
+(defun vec4- (vec1 vec2)
+  (make-array 4 :element-type 'single-float
+              :initial-contents
+              `(,(- (aref vec1 0) (aref vec2 0))
+                 ,(- (aref vec1 1) (aref vec2 1))
+                 ,(- (aref vec1 2) (aref vec2 2))
+                 ,(- (aref vec1 3) (aref vec2 3)))))
+
+(defun vec4* (vec n)
+  (make-array 4 :element-type 'single-float
+              :initial-contents
+              `(,(* (aref vec 0) n)
+                 ,(* (aref vec 1) n)
+                 ,(* (aref vec 2) n)
+                 ,(* (aref vec 3) n))))
+
+(defun vec4/ (vec n)
+  (make-array 4 :element-type 'single-float
+              :initial-contents
+              `(,(/ (aref vec 0) n)
+                 ,(/ (aref vec 1) n)
+                 ,(/ (aref vec 2) n)
+                 ,(/ (aref vec 3) n))))
+;; ---------------------------------------------------------
+;; vec3
+(defun vec3+ (vec1 vec2)
+  (make-array 3 :element-type 'single-float
+              :initial-contents
+              `(,(+ (aref vec1 0) (aref vec2 0))
+                 ,(+ (aref vec1 1) (aref vec2 1))
+                 ,(+ (aref vec1 2) (aref vec2 2)))))
+
+(defun vec3- (vec1 vec2)
+  (make-array 3 :element-type 'single-float
+              :initial-contents
+              `(,(- (aref vec1 0) (aref vec2 0))
+                 ,(- (aref vec1 1) (aref vec2 1))
+                 ,(- (aref vec1 2) (aref vec2 2)))))
+
+(defun vec3* (vec n)
+  (make-array 3 :element-type 'single-float
+              :initial-contents
+              `(,(* (aref vec 0) n)
+                 ,(* (aref vec 1) n)
+                 ,(* (aref vec 2) n))))
+
+(defun vec3/ (vec n)
+  (make-array 3 :element-type 'single-float
+              :initial-contents
+              `(,(/ (aref vec 0) n)
+                 ,(/ (aref vec 1) n)
+                 ,(/ (aref vec 2) n))))
+
+(defun vec3-normalize (vec)
+  (let* ((length (sqrt (+ (expt (aref vec 0) 2)
+                          (expt (aref vec 1) 2)
+                          (expt (aref vec 2) 2)))))
+    (make-array 3 :element-type 'single-float
+                :initial-contents
+                `(,(/ (aref vec 0) length)
+                   ,(/ (aref vec 1) length)
+                   ,(/ (aref vec 2) length)))))
+;; ---------------------------------------------------------
+;; vec2
+(defun vec2+ (vec1 vec2)
+  (make-array 2 :element-type 'single-float
+              :initial-contents
+              `(,(+ (aref vec1 0) (aref vec2 0))
+                 ,(+ (aref vec1 1) (aref vec2 1)))))
+
+(defun vec2- (vec1 vec2)
+  (make-array 2 :element-type 'single-float
+              :initial-contents
+              `(,(- (aref vec1 0) (aref vec2 0))
+                 ,(- (aref vec1 1) (aref vec2 1)))))
+
+(defun vec2* (vec n)
+  (make-array 2 :element-type 'single-float
+              :initial-contents
+              `(,(* (aref vec 0) n)
+                 ,(* (aref vec 1) n))))
+
+(defun vec2/ (vec n)
+  (make-array 2 :element-type 'single-float
+              :initial-contents
+              `(,(/ (aref vec 0) n)
+                 ,(/ (aref vec 1) n))))
