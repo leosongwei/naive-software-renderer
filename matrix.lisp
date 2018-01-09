@@ -6,9 +6,16 @@
 
 (defstruct vertex
   (coord (make-array 4 :element-type 'single-float))
+  (ndc (make-array 4 :element-type 'single-float))
   (normal (make-array 3 :element-type 'single-float))
   (color (make-array 3 :element-type 'single-float))
   (tex-coorde (make-array 2 :element-type 'single-float)))
+
+(defstruct triangle
+  (vertices (make-array 3 :element-type 'vertex
+                        :initial-contents `(,(make-vertex)
+                                             ,(make-vertex)
+                                             ,(make-vertex)))))
 
 ;; ---------------------------------
 
@@ -287,6 +294,9 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   (make-vertex :coord (let ((c1 (vertex-coord v1))
                             (c2 (vertex-coord v2)))
                         (vec4+ c1 (vec4* (vec4- c2 c1) pt)))
+               :ndc (let ((ndc1 (vertex-ndc v1))
+                          (ndc2 (vertex-ndc v2)))
+                      (vec4+ ndc1 (vec4* (vec4- ndc2 ndc1) pt)))
                :normal (let ((n1 (vertex-normal v1))
                              (n2 (vertex-normal v2)))
                          (vec3+ (vec3* n1 (- 1 pt))
@@ -298,3 +308,14 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                :tex-coorde (let ((tc1 (vertex-tex-coorde v1))
                                  (tc2 (vertex-tex-coorde v2)))
                              (vec2+ tc1 (vec2* (vec2- tc2 tc1) pt)))))
+
+(defun vec4-ndc (vec4)
+  "transform a vec4 to NDC(Normalized Device Coordinate)
+   x,y [-1.0, +1.0]
+   z   [0.0, 1.0]"
+  (let* ((x (aref vec4 0)) (y (aref vec4 1)) (z (aref vec4 2))
+         (w (aref vec4 3))
+         (nx (/ x w)) (ny (/ y w)) (nz (/ z w)))
+    (make-array 4 :element-type 'single-float
+                :initial-contents
+                `(,nx ,ny ,nz 1.0))))
