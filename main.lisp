@@ -1,5 +1,5 @@
 (load "matrix.lisp")
-;(load "clip.lisp")
+(load "clip.lisp")
 
 (defparameter *w* 640)
 (defparameter *h* 480)
