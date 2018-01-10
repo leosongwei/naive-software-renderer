@@ -17,6 +17,10 @@
                                              ,(make-vertex)
                                              ,(make-vertex)))))
 
+(defun build-triangle (v1 v2 v3)
+  (make-triangle :vertices (make-array 3 :element-type 'vertex
+                                       :initial-contents `(,v1 ,v2 ,v3))))
+
 ;; ---------------------------------
 
 (defun multiply-mat (a b)

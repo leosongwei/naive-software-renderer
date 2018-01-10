@@ -93,55 +93,68 @@
 ;;                    (clip-v3 (clip-values)))
 ;;    (list clip-v1-keep clip1-v1p clip1-v2p)))
 
-(let ((c 'c))
-  (ccase c
-    ((a b) 1)
-    (c 2)))
-
-;; (defun clip-triangle (triangle axis plane direction)
-;;   "clip-triangle
-;;    triangle: triangle
-;;    axis: 'x 'y 'z
-;;    plane: plane on the axis, e.g. x=3
-;;    direction: '+, '-
-;;    return: list of triangles / nil"
-;;   (let* ((vertices (triangle-vertices triangle))
-;;          (triangles (list vertices)))
-;;     (block :loop-on-clip-planes
-;;       (dolist (clip-func (list (lambda (v1 v2) (clip-line v1 v2 'x -1.0 '+))
-;;                                (lambda (v1 v2) (clip-line v1 v2 'x +1.0 '-))
-;;                                (lambda (v1 v2) (clip-line v1 v2 'y -1.0 '+))
-;;                                (lambda (v1 v2) (clip-line v1 v2 'y +1.0 '-))
-;;                                (lambda (v1 v2) (clip-line v1 v2 'z 0.0 '+))
-;;                                (lambda (v1 v2) (clip-line v1 v2 'z 1.0 '-))))
-;;         (if (null triangles)
-;;             (return-from :loop-on-clip-planes nil))
-;;         (let ((triangles-local (copy-seq triangles)))
-;;           (setf triangles nil)
-;;           (dolist (triangle-current triangles-local)
-;;             (let ((vertex-array (triangle-vertices triangle-current))
-;;                   (v1 (aref vertex-array 0))
-;;                   (v2 (aref vertex-array 1))
-;;                   (v3 (aref vertex-array 2)))
-;;               (bind-clip-line ((c12 (funcall clip-func v1 v2))
-;;                                (c13 (funcall clip-func v1 v3))
-;;                                (c23 (funcall clip-func v2 v3)))
-;;                 (let* ((vertex-cutted (+ (ccase c12-keep ;; v1
-;;                                            ((both-drop cut-1st) 1)
-;;                                            ((both-keep cut-2nd) 0))
-;;                                          (ccase c12-keep ;; v2
-;;                                            ((both-drop cut-2nd) 1)
-;;                                            ((both-keep cut-1st) 0))
-;;                                          (ccase c23-keep ;; v3
-;;                                            ((both-drop cut-2nd) 1)
-;;                                            ((both-keep cut-1st) 0)))))
-;;                   (case vertex-cutted
-;;                     (0 (push triangle-current triangles))
-;;                     (1 (....))
-;;                     (2 (....))
-;;                     (3 nil)))))))))
-;;     triangles))
-
+(defun clip-triangle (triangle)
+  "clip-triangle
+   triangle: triangle
+   return: list of triangles / nil"
+  (let* ((vertices (triangle-vertices triangle))
+         (triangles (list vertices)))
+    (block :loop-on-clip-planes
+      (dolist (clip-func (list (lambda (v1 v2) (clip-line v1 v2 'x -1.0 '+))
+                               (lambda (v1 v2) (clip-line v1 v2 'x +1.0 '-))
+                               (lambda (v1 v2) (clip-line v1 v2 'y -1.0 '+))
+                               (lambda (v1 v2) (clip-line v1 v2 'y +1.0 '-))
+                               (lambda (v1 v2) (clip-line v1 v2 'z 0.0 '+))
+                               (lambda (v1 v2) (clip-line v1 v2 'z 1.0 '-))))
+        (if (null triangles)
+            (return-from :loop-on-clip-planes nil))
+        (let ((triangles-local (copy-seq triangles)))
+          (setf triangles nil)
+          (dolist (triangle-current triangles-local)
+            (let* ((vertex-array (triangle-vertices triangle-current))
+                   (v1 (aref vertex-array 0))
+                   (v2 (aref vertex-array 1))
+                   (v3 (aref vertex-array 2)))
+              (bind-clip-line ((c12 (funcall clip-func v1 v2))
+                               (c23 (funcall clip-func v2 v3))
+                               (c31 (funcall clip-func v3 v1)))
+                (let* ((v1-cutted nil)
+                       (v2-cutted nil)
+                       (v3-cutted nil)
+                       (vertex-cutted (+ (ccase c12-keep ;; v1
+                                           ((both-drop cut-1st)
+                                            (progn (setf v1-cutted t) 1))
+                                           ((both-keep cut-2nd) 0))
+                                         (ccase c23-keep ;; v2
+                                           ((both-drop cut-1st)
+                                            (progn (setf v2-cutted t) 1))
+                                           ((both-keep cut-2nd) 0))
+                                         (ccase c31-keep ;; v3
+                                           ((both-drop cut-1st)
+                                            (progn (setf v3-cutted t) 1))
+                                           ((both-keep cut-2nd) 0)))))
+                  (case vertex-cutted
+                    (0 (push triangle-current triangles))
+                    (1 (cond (v1-cutted (let ((va c12-v1) (vb c31-v2))
+                                          (push (build-triangle va vb v3) triangles)
+                                          (push (build-triangle vb v2 v3) triangles)))
+                             (v2-cutted (let ((va c12-v2) (vb c23-v1))
+                                          (push (build-triangle v1 va vb) triangles)
+                                          (push (build-triangle v1 vb v3) triangles)))
+                             (v3-cutted (let ((va c23-v2) (vb c31-v1))
+                                          (push (build-triangle v1 v2 vb) triangles)
+                                          (push (build-triangle vb v2 va) triangles)))))
+                    (2 (cond ((null v1-cutted)
+                              (let ((va c31-v1) (vb c12-v2))
+                                (push (build-triangle v1 vb va) triangles)))
+                             ((null v2-cutted)
+                              (let ((va c12-v1) (vb c23-v2))
+                                (push (build-triangle va v2 vb) triangles)))
+                             ((null v3-cutted)
+                              (let ((va c23-v1) (vb c31-v2))
+                                (push (build-triangle vb va v3) triangles)))))
+                    (3 nil)))))))))
+    triangles))
 
 
 
