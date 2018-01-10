@@ -1,7 +1,5 @@
 (defconstant +empty-vertex+ (make-vertex))
 
-(list #.(expt 10 -10))
-
 (defun clip-line (v1 v2 axis plane direction)
   "CLIP-LINE
    vertices: v1->v2
@@ -28,10 +26,12 @@
               (- -1.0)))
          (dp (* d sign))) ;; d'
     (if (< (abs delta-on-axis) #.(expt 10 -15))
+        ;; handle very small delta
         (let ((location (aref p1 axis-nth)))
           (if (>= (* (- location plane) d) 0)
               (values 'both-keep v1 v2)
               (values 'both-drop +empty-vertex+ +empty-vertex+)))
+        ;; normal case
         (let* ((pt (/ (- plane (aref p1 axis-nth)) ;; point t
                       delta-on-axis)))
           ;;(format t " t=~A~% s=~A~% delta=~A~% dp=~A~%" pt sign delta-on-axis dp)
@@ -73,6 +73,31 @@
 ;;   tri)
 ;; (make-triangle)
 
+(defmacro bind-clip-line (clips &body body)
+  (let* ((clip (car clips))
+         (clip-values-expression (cadr clip))
+         (clip-name-string (symbol-name (car clip)))
+         (clip-keep-symbol (intern (concatenate 'string clip-name-string "-KEEP")))
+         (clip-v1-symbol (intern (concatenate 'string clip-name-string "-V1")))
+         (clip-v2-symbol (intern (concatenate 'string clip-name-string "-V2"))))
+    (if (null (cdr clips))
+        `(multiple-value-bind (,clip-keep-symbol ,clip-v1-symbol ,clip-v2-symbol)
+             ,clip-values-expression
+           ,@body)
+        `(multiple-value-bind (,clip-keep-symbol ,clip-v1-symbol ,clip-v2-symbol)
+             ,clip-values-expression
+           (bind-clip-line ,(cdr clips) ,@body)))))
+;; (macroexpand-1
+;;  '(bind-clip-line ((clip-v1 (clip-values))
+;;                    (clip-v2 (clip-values))
+;;                    (clip-v3 (clip-values)))
+;;    (list clip-v1-keep clip1-v1p clip1-v2p)))
+
+(let ((c 'c))
+  (ccase c
+    ((a b) 1)
+    (c 2)))
+
 ;; (defun clip-triangle (triangle axis plane direction)
 ;;   "clip-triangle
 ;;    triangle: triangle
@@ -82,12 +107,41 @@
 ;;    return: list of triangles / nil"
 ;;   (let* ((vertices (triangle-vertices triangle))
 ;;          (triangles (list vertices)))
-;;     (dolist (clip-func (list (lambda (v1 v2) (clip-line v1 v2 'x -1.0 '+))
-;;                              (lambda (v1 v2) (clip-line v1 v2 'x +1.0 '-))
-;;                              (lambda (v1 v2) (clip-line v1 v2 'y -1.0 '+))
-;;                              (lambda (v1 v2) (clip-line v1 v2 'y +1.0 '-))
-;;                              (lambda (v1 v2) (clip-line v1 v2 'z 0.0 '+))
-;;                              (lambda (v1 v2) (clip-line v1 v2 'z 1.0 '-))))
-;;       (let ((triangles-local (copy-seq triangles)))
-;;         (setf triangles nil)
-;;         (dolist (triangle-current triangles-local)
+;;     (block :loop-on-clip-planes
+;;       (dolist (clip-func (list (lambda (v1 v2) (clip-line v1 v2 'x -1.0 '+))
+;;                                (lambda (v1 v2) (clip-line v1 v2 'x +1.0 '-))
+;;                                (lambda (v1 v2) (clip-line v1 v2 'y -1.0 '+))
+;;                                (lambda (v1 v2) (clip-line v1 v2 'y +1.0 '-))
+;;                                (lambda (v1 v2) (clip-line v1 v2 'z 0.0 '+))
+;;                                (lambda (v1 v2) (clip-line v1 v2 'z 1.0 '-))))
+;;         (if (null triangles)
+;;             (return-from :loop-on-clip-planes nil))
+;;         (let ((triangles-local (copy-seq triangles)))
+;;           (setf triangles nil)
+;;           (dolist (triangle-current triangles-local)
+;;             (let ((vertex-array (triangle-vertices triangle-current))
+;;                   (v1 (aref vertex-array 0))
+;;                   (v2 (aref vertex-array 1))
+;;                   (v3 (aref vertex-array 2)))
+;;               (bind-clip-line ((c12 (funcall clip-func v1 v2))
+;;                                (c13 (funcall clip-func v1 v3))
+;;                                (c23 (funcall clip-func v2 v3)))
+;;                 (let* ((vertex-cutted (+ (ccase c12-keep ;; v1
+;;                                            ((both-drop cut-1st) 1)
+;;                                            ((both-keep cut-2nd) 0))
+;;                                          (ccase c12-keep ;; v2
+;;                                            ((both-drop cut-2nd) 1)
+;;                                            ((both-keep cut-1st) 0))
+;;                                          (ccase c23-keep ;; v3
+;;                                            ((both-drop cut-2nd) 1)
+;;                                            ((both-keep cut-1st) 0)))))
+;;                   (case vertex-cutted
+;;                     (0 (push triangle-current triangles))
+;;                     (1 (....))
+;;                     (2 (....))
+;;                     (3 nil)))))))))
+;;     triangles))
+
+
+
+
