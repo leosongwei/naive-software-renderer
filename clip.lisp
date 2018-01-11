@@ -97,8 +97,7 @@
   "clip-triangle
    triangle: triangle
    return: list of triangles / nil"
-  (let* ((vertices (triangle-vertices triangle))
-         (triangles (list vertices)))
+  (let* ((triangles (list triangle)))
     (block :loop-on-clip-planes
       (dolist (clip-func (list (lambda (v1 v2) (clip-line v1 v2 'x -1.0 '+))
                                (lambda (v1 v2) (clip-line v1 v2 'x +1.0 '-))
@@ -133,9 +132,9 @@
                                            ((both-drop cut-1st)
                                             (progn (setf v3-cutted t) 1))
                                            ((both-keep cut-2nd) 0)))))
-                  (case vertex-cutted
+                  (ccase vertex-cutted
                     (0 (push triangle-current triangles))
-                    (1 (cond (v1-cutted (let ((va c12-v1) (vb c31-v2))
+                    (1 (cond (v1-cutted (let ((va c31-v2) (vb c12-v1))
                                           (push (build-triangle va vb v3) triangles)
                                           (push (build-triangle vb v2 v3) triangles)))
                              (v2-cutted (let ((va c12-v2) (vb c23-v1))
@@ -156,5 +155,26 @@
                     (3 nil)))))))))
     triangles))
 
+(defun print-triangle-ndc (triangle)
+  "generate Kig script, loaded by pykig.py"
+  (let* ((vertices (triangle-vertices triangle)))
+    (let* ((vertex (aref vertices 0))
+           (ndc (vertex-ndc vertex)))
+      (format t "a = Point(~A, ~A)~%" (aref ndc 0) (aref ndc 2)))
+    (let* ((vertex (aref vertices 1))
+           (ndc (vertex-ndc vertex)))
+      (format t "b = Point(~A, ~A)~%" (aref ndc 0) (aref ndc 2)))
+    (let* ((vertex (aref vertices 2))
+           (ndc (vertex-ndc vertex)))
+      (format t "c = Point(~A, ~A)~%" (aref ndc 0) (aref ndc 2)))
+    (format t "s = Segment(a,b)~%")
+    (format t "s = Segment(b,c)~%")
+    (format t "s = Segment(c,a)~%")))
+
+(let* ((v1 (make-vertex :ndc #(-1.17 0.0 0.15 1.0)))
+       (v2 (make-vertex :ndc #(+1.32 0.0 -0.22 1.0)))
+       (v3 (make-vertex :ndc #(+0.23 0.0 1.22 1.0))))
+  (mapcar #'print-triangle-ndc (clip-triangle
+                                (build-triangle v1 v2 v3))))
 
 
