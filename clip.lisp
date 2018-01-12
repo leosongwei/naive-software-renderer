@@ -171,10 +171,19 @@
     (format t "s = Segment(b,c)~%")
     (format t "s = Segment(c,a)~%")))
 
-(let* ((v1 (make-vertex :ndc #(-1.17 0.0 0.15 1.0)))
-       (v2 (make-vertex :ndc #(+1.32 0.0 -0.22 1.0)))
-       (v3 (make-vertex :ndc #(+0.23 0.0 1.22 1.0))))
-  (mapcar #'print-triangle-ndc (clip-triangle
-                                (build-triangle v1 v2 v3))))
-
-
+;; (let* ((v1 (make-vertex :ndc #(-1.17 0.0 0.15 1.0)))
+;;        (v2 (make-vertex :ndc #(+1.32 0.0 -0.22 1.0)))
+;;        (v3 (make-vertex :ndc #(+0.23 0.0 1.22 1.0))))
+;;   (mapcar #'print-triangle-ndc (clip-triangle
+;;                                 (build-triangle v1 v2 v3))))
+;; (let* ((v1 (make-vertex :ndc #(-1.3 0.0 0.2 1.0)))
+;;        (v2 (make-vertex :ndc #(+1.3 0.0 0.2 1.0)))
+;;        (v3 (make-vertex :ndc #(+0.5 0.0 1.2 1.0))))
+;;   (mapcar #'print-triangle-ndc (clip-triangle
+;;                                 (build-triangle v1 v2 v3))))
+;; (let* ((v1 (make-vertex :ndc #(-0.5 0.0 0.2 1.0)))
+;;        (v2 (make-vertex :ndc #(+0.5 0.0 0.2 1.0)))
+;;        (v3 (make-vertex :ndc #(0.0 0.0 1.0 1.0))))
+;;       ;; this produce 1 unecesarry triangle
+;;   (mapcar #'print-triangle-ndc (clip-triangle
+;;                                 (build-triangle v1 v2 v3))))

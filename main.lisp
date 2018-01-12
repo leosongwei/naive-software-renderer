@@ -1,3 +1,4 @@
+(load "utils.lisp")
 (load "matrix.lisp")
 (load "clip.lisp")
 
