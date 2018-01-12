@@ -4,6 +4,8 @@
 (load "utils.lisp")
 (load "matrix.lisp")
 (load "clip.lisp")
+(load "wavefront-obj.lisp")
+;;(load "model.lisp")
 
 (defparameter *w* 640)
 (defparameter *h* 480)

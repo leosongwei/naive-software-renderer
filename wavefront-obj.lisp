@@ -38,12 +38,11 @@
         (cond ((string= "v" (car list))
                ;; v 0.123 0.234 0.345 1.0
                (if (= 4 (length (cdr list)))
-                   ;; #(0.123 0.234 0.345 1.0)
-                   (push (apply #'vector
-                                (mapcar #'float
-                                        (mapcar
-                                         #'parse-number:parse-number
-                                         (cdr list))))
+                   ;; (0.123 0.234 0.345 1.0)
+                   (push (mapcar #'float
+                                 (mapcar
+                                  #'parse-number:parse-number
+                                  (cdr list)))
                          vertex-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown vertex format: ~A"
@@ -52,11 +51,10 @@
                ;; vt 0.500 1
                (if (= 2 (length (cdr list)))
                    ;; #(0.5 1.0)
-                   (push (apply #'vector
-                                (mapcar #'float
-                                        (mapcar
-                                         #'parse-number:parse-number
-                                         (cdr list))))
+                   (push (mapcar #'float
+                                 (mapcar
+                                  #'parse-number:parse-number
+                                  (cdr list)))
                          tex-coord-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown tex coord format: ~A"
@@ -65,11 +63,10 @@
                ;; vn 0.707 0.000 0.707
                (if (= 3 (length (cdr list)))
                    ;; #(0.707 0.000 0.707)
-                   (push (apply #'vector
-                                (mapcar #'float
-                                        (mapcar
-                                         #'parse-number:parse-number
-                                         (cdr list))))
+                   (push (mapcar #'float
+                                 (mapcar
+                                  #'parse-number:parse-number
+                                  (cdr list)))
                          normal-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown normal format: ~A"
@@ -80,13 +77,11 @@
                ;; 1-indexed
                (if (= 3 (length (cdr list)))
                    ;; ((6 4 1) (3 5 3) (7 6 5))
-                   (push
-                    (apply #'vector
-                           (mapcar (lambda (string)
-                                     (mapcar #'parse-integer
-                                             (split-string-with-char string #\/)))
-                                   (cdr list)))
-                    face-list)
+                   (push (mapcar (lambda (string)
+                                   (mapcar #'parse-integer
+                                           (split-string-with-char string #\/)))
+                                 (cdr list))
+                         face-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown face format: ~A"
                                   string)))))))
@@ -94,6 +89,7 @@
             (reverse tex-coord-list)
             (reverse normal-list)
             (reverse face-list))))
+
 ;; (multiple-value-bind (vertices tex-coords normals faces)
 ;;     (read-wavefront-obj-file #p"test.obj")
 ;;   (list :vertices vertices :tex-coords tex-coords :normals normals :faces faces))
