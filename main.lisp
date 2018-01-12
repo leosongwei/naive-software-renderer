@@ -1,3 +1,6 @@
+(ql:quickload 'cffi)
+(ql:quickload 'parse-number)
+
 (load "utils.lisp")
 (load "matrix.lisp")
 (load "clip.lisp")

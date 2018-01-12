@@ -25,8 +25,7 @@
                    (setf collect (make-dynamic-string))))))
     (if (> (length collect) 0) (push collect list))
     (reverse list)))
-
-(split-string-with-char "sadfsad/sdfasdfa/asfd" #\/)
+;;(split-string-with-char "sadfsad/sdfasdfa/asfd" #\/)
 
 (defun read-wavefront-obj-file (file-path)
   (let ((line-list (read-text-into-line-list file-path))
@@ -37,7 +36,9 @@
     (dolist (string line-list)
       (let ((list (split-string-with-char string)))
         (cond ((string= "v" (car list))
-               (if (= 3 (length (cdr list)))
+               ;; v 0.123 0.234 0.345 1.0
+               (if (= 4 (length (cdr list)))
+                   ;; #(0.123 0.234 0.345 1.0)
                    (push (apply #'vector
                                 (mapcar #'float
                                         (mapcar
@@ -48,7 +49,9 @@
                                   "read-wavefront-obj-file: unknown vertex format: ~A"
                                   string))))
               ((string= "vt" (car list))
+               ;; vt 0.500 1
                (if (= 2 (length (cdr list)))
+                   ;; #(0.5 1.0)
                    (push (apply #'vector
                                 (mapcar #'float
                                         (mapcar
@@ -59,19 +62,38 @@
                                   "read-wavefront-obj-file: unknown tex coord format: ~A"
                                   string))))
               ((string= "vn" (car list))
+               ;; vn 0.707 0.000 0.707
                (if (= 3 (length (cdr list)))
+                   ;; #(0.707 0.000 0.707)
                    (push (apply #'vector
                                 (mapcar #'float
                                         (mapcar
                                          #'parse-number:parse-number
                                          (cdr list))))
-                         tex-coord-list)
+                         normal-list)
                    (error (format nil
-                                  "read-wavefront-obj-file: unknown tex coord format: ~A"
+                                  "read-wavefront-obj-file: unknown normal format: ~A"
                                   string))))
               ((string= "f" (car list))
                ;; f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+               ;; f 6/4/1 3/5/3 7/6/5
+               ;; 1-indexed
                (if (= 3 (length (cdr list)))
-                   ;;; tobe done
-
-
+                   ;; ((6 4 1) (3 5 3) (7 6 5))
+                   (push
+                    (apply #'vector
+                           (mapcar (lambda (string)
+                                     (mapcar #'parse-integer
+                                             (split-string-with-char string #\/)))
+                                   (cdr list)))
+                    face-list)
+                   (error (format nil
+                                  "read-wavefront-obj-file: unknown face format: ~A"
+                                  string)))))))
+    (values (reverse vertex-list)
+            (reverse tex-coord-list)
+            (reverse normal-list)
+            (reverse face-list))))
+;; (multiple-value-bind (vertices tex-coords normals faces)
+;;     (read-wavefront-obj-file #p"test.obj")
+;;   (list :vertices vertices :tex-coords tex-coords :normals normals :faces faces))
