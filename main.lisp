@@ -7,8 +7,19 @@
 (load "wavefront-obj.lisp")
 (load "model.lisp")
 
+
+;;;; window coordinate (x y):
+;; (0, 0) (1, 0)
+;; (0, 1) (1, 1)
+(defparameter *pixel-buffer* nil)
+(defparameter *sdl2-surface* nil)
+(defparameter *sdl2-pixel-buffer* nil)
+(defparameter *sdl2-window* nil)
+(defparameter *sdl2-renderer* nil)
+
 (defparameter *w* 640)
 (defparameter *h* 480)
+(load "init.lisp")
 
 (defparameter *eye* (make-array 3 :element-type 'single-float))
 
@@ -93,6 +104,10 @@
         (setf (vertex-ndc v) ndc)))
     triangle))
 
-(defun draw-triangle-list (triangle-list)
-  )
+(init-window)
+(c-draw-line 10 10 100 200 #xff0000ff *sdl2-pixel-buffer* *w*)
+(update-win)
+
+;; (defun draw-triangle-list (triangle-list)
+;;   )
 
