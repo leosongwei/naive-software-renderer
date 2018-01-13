@@ -28,21 +28,34 @@
 ;;      3. draw
 ;;   5. swap buffer
 
-(defun triangle-transform-f (triangle transform-mat)
+(defstruct (gobject (:copier copy-gobject))
+  triangles
+  (position (make-array 3 :element-type 'single-float))
+  (rotation (make-array 3 :element-type 'single-float))
+  (trans-mat (make-array '(4 4) :element-type 'single-float)))
+
+(defun copy-gobject (gobj)
+  (make-gobject :triangles (mapcar #'copy-
+
+(defun gobject-transmat-f (gobject)
+  (let* ((pos (gobject-position gobject))
+         (transition (3d-trans-mat (aref pos 0)
+                                   (aref pos 1)
+                                   (aref pos 2)))
+         (rot (gobject-rotation gobject))
+         (rot-x (3d-rotate-x (aref rot 0)))
+         (rot-y (3d-rotate-y (aref rot 1)))
+         (rot-z (3d-rotate-z (aref rot 2))))
+    (
+
+(defun gobject-transform-f (triangle transform-mat)
   )
 
-(let* ((v1 (make-vertex :coord (make-array 4 :element-type 'single-float
-                                           :initial-contents '(1.0 1.0 1.0 1.0))))
-       (v2 (copy-vertex v1))
-       (v1-coord (vertex-coord v1)))
-  (setf (aref v1-coord 0) 6.6)
-  v2)
+;; (defun triangle-project-f (triangle projection-mat)
+;;   )
 
-(defun triangle-project-f (triangle projection-mat)
-  )
+;; (defun triangle-ndc-f (triangle)
+;;   ())
 
-(defun triangle-ndc-f (triangle)
-  ())
-
-(defun draw-triangle-list (triangle-list)
+;; (defun draw-triangle-list (triangle-list)
   

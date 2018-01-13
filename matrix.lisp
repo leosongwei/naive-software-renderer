@@ -23,12 +23,27 @@
                :normal (copy-float-array (vertex-normal vertex))
                :color (copy-float-array (vertex-color vertex))
                :tex-coord (copy-float-array (vertex-tex-coord vertex))))
+;; (let* ((v1 (make-vertex :coord (make-array 4 :element-type 'single-float
+;;                                            :initial-contents '(1.0 1.0 1.0 1.0))))
+;;        (v2 (copy-vertex v1))
+;;        (v1-coord (vertex-coord v1)))
+;;   (setf (aref v1-coord 0) 6.6)
+;;   v2)
 
-(defstruct triangle
+(defstruct (triangle (:copier copy-triangle))
   (vertices (make-array 3 :element-type 'vertex
                         :initial-contents `(,(make-vertex)
                                              ,(make-vertex)
                                              ,(make-vertex)))))
+
+(defun copy-triangle (triangle)
+  (let ((vertices (triangle-vertices triangle)))
+    (make-triangle :vertices
+                   (make-array 3 :element-type 'vertex
+                               :initial-contents
+                               `(,(copy-vertex (aref vertices 0))
+                                  ,(copy-vertex (aref vertices 1))
+                                  ,(copy-vertex (aref vertices 2)))))))
 
 (defun build-triangle (v1 v2 v3)
   (make-triangle :vertices (make-array 3 :element-type 'vertex
