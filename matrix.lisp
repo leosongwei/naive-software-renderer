@@ -4,12 +4,25 @@
 ;;   3f: color
 ;;   2f: texture coord
 
-(defstruct vertex
+(defun copy-float-array (array)
+  (let ((a (make-array (length array) :element-type 'single-float)))
+    (dotimes (i (length array))
+      (setf (aref a i) (aref array i)))
+    a))
+
+(defstruct (vertex (:copier copy-vertex))
   (coord (make-array 4 :element-type 'single-float))
   (ndc (make-array 4 :element-type 'single-float))
   (normal (make-array 3 :element-type 'single-float))
   (color (make-array 3 :element-type 'single-float))
-  (tex-coorde (make-array 2 :element-type 'single-float)))
+  (tex-coord (make-array 2 :element-type 'single-float)))
+
+(defun copy-vertex (vertex)
+  (make-vertex :coord (copy-float-array (vertex-coord vertex))
+               :ndc (copy-float-array (vertex-ndc vertex))
+               :normal (copy-float-array (vertex-normal vertex))
+               :color (copy-float-array (vertex-color vertex))
+               :tex-coord (copy-float-array (vertex-tex-coord vertex))))
 
 (defstruct triangle
   (vertices (make-array 3 :element-type 'vertex
@@ -309,8 +322,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                             (color2 (vertex-color v2)))
                         (vec3+ (vec3* color1 (- 1 pt))
                                (vec3* color2 pt)))
-               :tex-coorde (let ((tc1 (vertex-tex-coorde v1))
-                                 (tc2 (vertex-tex-coorde v2)))
+               :tex-coord (let ((tc1 (vertex-tex-coord v1))
+                                 (tc2 (vertex-tex-coord v2)))
                              (vec2+ tc1 (vec2* (vec2- tc2 tc1) pt)))))
 
 (defun vec4-ndc (vec4)

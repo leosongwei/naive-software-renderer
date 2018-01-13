@@ -13,8 +13,7 @@
   (make-array length
               :element-type 'single-float
               :initial-contents list))
-
-(make-array-list 4 '(1.0 2.0 3.0 4.0))
+;;(make-array-list 4 '(1.0 2.0 3.0 4.0))
 
 (defun make-model-from-wave-front (vertices tex-coords normals faces)
   (let ((vertices-array (list-2-array vertices))
@@ -29,7 +28,7 @@
                                  (make-vertex :coord
                                               (make-array-list
                                                4 (aref vertices-array (1- coord-index)))
-                                              :tex-coorde
+                                              :tex-coord
                                               (make-array-list
                                                2 (aref tex-coords-array (1- tex-coord-index)))
                                               :normal
@@ -43,3 +42,7 @@
   ;;(list :vertices vertices :tex-coords tex-coords :normals normals :faces faces)
   (make-model-from-wave-front vertices tex-coords normals faces))
 
+(defun wave-front-file-to-triangles (file-path)
+  (multiple-value-bind (vertices tex-coords normals faces)
+      (read-wavefront-obj-file file-path)
+    (make-model-from-wave-front vertices tex-coords normals faces)))
