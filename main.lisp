@@ -91,8 +91,14 @@
 
 ;; (init-window :w 640 :h 480)
 
+;; (progn
+;;   (setf (aref (gobject-rotation *bunny-obj*) 1) (float (mod 30 360)))
+;;   (clear)
+;;   (display-gobject-wire *bunny-obj*)
+;;   (update-win))
+
 ;; (time
-;;  (dotimes (i (* 4 360))
+;;  (dotimes (i (* 1 360))
 ;;    (progn
 ;;      (setf (aref (gobject-rotation *bunny-obj*) 1) (float (mod i 360)))
 ;;      (clear)
