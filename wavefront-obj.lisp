@@ -36,13 +36,13 @@
     (dolist (string line-list)
       (let ((list (split-string-with-char string)))
         (cond ((string= "v" (car list))
-               ;; v 0.123 0.234 0.345 1.0
-               (if (= 4 (length (cdr list)))
+               ;; v 0.123 0.234 0.345
+               (if (= 3 (length (cdr list)))
                    ;; (0.123 0.234 0.345 1.0)
                    (push (mapcar #'float
                                  (mapcar
                                   #'parse-number:parse-number
-                                  (cdr list)))
+                                  (append (cdr list) '("1.0"))))
                          vertex-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown vertex format: ~A"

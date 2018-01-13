@@ -1,3 +1,18 @@
+(defstruct (gobject (:copier copy-gobject))
+  triangles
+  (position (make-array 3 :element-type 'single-float))
+  (rotation (make-array 3 :element-type 'single-float)) ;; on x, y, z, in degree
+  (scale (3d-scale 1.0))
+  (trans-mat (make-array '(4 4) :element-type 'single-float)))
+
+(defun copy-gobject (gobj)
+  ;; the only thing need to be copied is the triangles list
+  (make-gobject :triangles (mapcar #'copy-triangle (gobject-triangles gobj))
+                :position (gobject-position gobj)
+                :rotation (gobject-rotation gobj)
+                :scale (gobject-scale gobj)
+                :trans-mat (gobject-trans-mat gobj)))
+
 (defun gobject-transmat-update-f (gobject)
   (let* ((pos (gobject-position gobject))
          (transition (3d-trans-mat (aref pos 0)
@@ -29,12 +44,6 @@
 ;;        (trans-mat (3d-trans-mat 1.0 1.0 1.0)))
 ;;   (triangle-transform-f tri trans-mat)
 ;;   tri)
-
-(defun gobject-transform-f (gobj)
-  (setf (gobject-triangles gobj)
-        (mapcar (lambda (triangle)
-                  (triangle-transform-f triangle (gobject-trans-mat gobj)))
-                (gobject-triangles gobj))))
 
 (defun triangle-ndc-f (triangle project-mat)
   ;; apply project matrix to the triangle, and convert to NDC space

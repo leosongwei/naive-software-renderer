@@ -37,10 +37,10 @@
                              face)))
             faces)))
 
-(multiple-value-bind (vertices tex-coords normals faces)
-    (read-wavefront-obj-file #p"test.obj")
-  ;;(list :vertices vertices :tex-coords tex-coords :normals normals :faces faces)
-  (make-model-from-wave-front vertices tex-coords normals faces))
+;; (multiple-value-bind (vertices tex-coords normals faces)
+;;     (read-wavefront-obj-file #p"test.obj")
+;;   ;;(list :vertices vertices :tex-coords tex-coords :normals normals :faces faces)
+;;   (make-model-from-wave-front vertices tex-coords normals faces))
 
 (defun wave-front-file-to-triangles (file-path)
   (multiple-value-bind (vertices tex-coords normals faces)
