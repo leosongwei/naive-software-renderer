@@ -39,7 +39,7 @@
                  (if (< dp 0)
                      (values 'both-keep v1 v2)
                      (values 'both-drop +empty-vertex+ +empty-vertex+)))
-                ((< pt #.(+ 0 (expt 10 -6)))
+                ((< pt #.(+ 0.0 (expt 10 -6)))
                  (if (> dp 0)
                      (values 'both-keep v1 v2)
                      (values 'both-drop +empty-vertex+ +empty-vertex+)))
