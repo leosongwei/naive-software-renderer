@@ -41,9 +41,9 @@
 ;; (update-win)
 
 (defun build-vertex-from-indexes (attrib-index world-coords ndc-coords normals tex-coords)
-  (let ((tex-coord-index (aref attrib-index 1))
-        (normal-index (aref attrib-index 2))
-        (coord-index (aref attrib-index 0)))
+  (let ((coord-index (aref attrib-index 0))
+        (tex-coord-index (aref attrib-index 1))
+        (normal-index (aref attrib-index 2)))
     (make-vertex :coord (aref world-coords coord-index)
                  :ndc (aref ndc-coords coord-index)
                  :normal (aref normals normal-index)
@@ -91,15 +91,24 @@
 
 (init-window :w 640 :h 480)
 
+(list :vertices ;; v
+      (length (modelmesh-vertices *bunny-mesh*))
+      :tex-coords ;; vt
+      (length (modelmesh-tex-coords *bunny-mesh*))
+      :normal ;; vn
+      (length (modelmesh-normals *bunny-mesh*)))
+
 ;; normal projections are not calculated yet!
+(time
 (let* ((vertices (modelmesh-vertices *bunny-mesh*))
        (tex-coords (modelmesh-tex-coords *bunny-mesh*))
-       (normals (modelmesh-vertices *bunny-mesh*))
+       (normals (modelmesh-normals *bunny-mesh*))
        (faces (modelmesh-faces *bunny-mesh*))
        ;; -------------------------
        (trans-mat (3d-trans-mat 0.0 -1.0 -10.0))
        (scale-mat (3d-scale 5.0)))
   (dotimes (i 1000)
+    (clear)
     (let* ((rot-mat (3d-rotate-y (mod i 360)))
            (trans-world (mul-44-44 trans-mat
                                    (mul-44-44 rot-mat scale-mat)))
@@ -111,39 +120,7 @@
                (triangle (build-triangle-from-face
                           face world-coords ndc-coords normals tex-coords))
                (cliped-triangles (clip-triangle triangle)))
-          (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
-
-;; (defun display-gobject-wire (gobj)
-;;   (gobject-transmat-update-f gobj)
-;;   (dolist (triangle (gobject-triangles gobj))
-;;     (let* ((tri (copy-triangle triangle)))
-;;       (triangle-transform-f tri (gobject-trans-mat gobj))
-;;       (triangle-ndc-f tri *project-mat*)
-;;       (let ((cliped-triangles (clip-triangle tri)))
-;;         (mapcar #'draw-triangle-wire-ndc cliped-triangles)))))
-
-;; (defparameter *bunny-triangles* (wave-front-file-to-triangles #p"bunny.obj"))
-
-;; (defparameter *bunny-obj*
-;;   (make-gobject :triangles *bunny-triangles*
-;;                 :position #(0.0 -1.0 -10.0)
-;;                 :scale (3d-scale 5.0)))
-
-
-
-
-;; (progn
-;;   (setf (aref (gobject-rotation *bunny-obj*) 1) (float (mod 30 360)))
-;;   (clear)
-;;   (display-gobject-wire *bunny-obj*)
-;;   (update-win))
-
-;; (time
-;;  (dotimes (i (* 1 360))
-;;    (progn
-;;      (setf (aref (gobject-rotation *bunny-obj*) 1) (float (mod i 360)))
-;;      (clear)
-;;      (display-gobject-wire *bunny-obj*)
-;;      (update-win))))
+          (mapcar #'draw-triangle-wire-ndc cliped-triangles))))
+    (update-win))))
 
 ;; (destroy-window)
