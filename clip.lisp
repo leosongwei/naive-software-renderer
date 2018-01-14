@@ -25,7 +25,7 @@
               (+ +1.0)
               (- -1.0)))
          (dp (* d sign))) ;; d'
-    (if (< (abs delta-on-axis) #.(expt 10 -15))
+    (if (< (abs delta-on-axis) #.(expt 10 -6))
         ;; handle very small delta
         (let ((location (aref p1 axis-nth)))
           (if (>= (* (- location plane) d) 0)
@@ -35,11 +35,11 @@
         (let* ((pt (/ (- plane (aref p1 axis-nth)) ;; point t
                       delta-on-axis)))
           ;;(format t " t=~A~% s=~A~% delta=~A~% dp=~A~%" pt sign delta-on-axis dp)
-          (cond ((> pt 1)
+          (cond ((> pt #.(- 1.0 (expt 10 -6)))
                  (if (< dp 0)
                      (values 'both-keep v1 v2)
                      (values 'both-drop +empty-vertex+ +empty-vertex+)))
-                ((< pt 0)
+                ((< pt #.(+ 0 (expt 10 -6)))
                  (if (> dp 0)
                      (values 'both-keep v1 v2)
                      (values 'both-drop +empty-vertex+ +empty-vertex+)))
@@ -47,6 +47,9 @@
                  (values 'cut-1st (interpolate-vertex v1 v2 pt) v2))
                 ((< dp 0)
                  (values 'cut-2nd v1 (interpolate-vertex v1 v2 pt))))))))
+;; (let ((v1 (make-vertex :ndc #(0.5 -2.0 -3.0 1.0)))
+;;       (v2 (make-vertex :ndc #(1.0 -2.0 -3.0 1.0))))
+;;   (clip-line v1 v2 'x 1.0 '-))
 ;; (let ((v1 (make-vertex :ndc #(2.0 1.0 -3.0 1.0)))
 ;;       (v2 (make-vertex :ndc #(0.0 3.0 2.0 1.0))))
 ;;   (clip-line v1 v2 'x 1.0 '-))
@@ -66,6 +69,7 @@
 ;; (let ((v1 (make-vertex :ndc #(2.0 -2.0 -3.0 1.0)))
 ;;       (v2 (make-vertex :ndc #(2.0 -2.0 -3.0 1.0))))
 ;;   (clip-line v1 v2 'y 1.0 '-))
+
 
 ;; (let* ((tri (make-triangle))
 ;;        (vc0 (vertex-coord (aref (triangle-vertices tri) 0))))
@@ -187,3 +191,6 @@
 ;;       ;; this produce 1 unecesarry triangle
 ;;   (mapcar #'print-triangle-ndc (clip-triangle
 ;;                                 (build-triangle v1 v2 v3))))
+
+(defun clip-polygon (v1 v2 v3)
+  )

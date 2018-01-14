@@ -90,6 +90,8 @@
 ;;                 (cliped-triangles (clip-triangle triangle)))
 ;;            cliped-triangles))))))
 
+
+;; (progn
 ;; (defparameter *black-hole* nil)
 ;; (gc :full t)
 
@@ -113,4 +115,4 @@
 ;;          (let* ((face (aref faces i))
 ;;                 (triangle (build-triangle-from-face
 ;;                            face world-coords ndc-coords normals tex-coords)))
-;;            (push triangle *black-hole*)))))))
+;;            (push triangle *black-hole*))))))))

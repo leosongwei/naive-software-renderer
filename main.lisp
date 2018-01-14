@@ -50,9 +50,12 @@
                  :tex-coord (aref tex-coords tex-coord-index))))
 
 (defun build-triangle-from-face (face world-coords ndc-coords normals tex-coords)
-  (let ((v1 (build-vertex-from-indexes (aref face 0) world-coords ndc-coords normals tex-coords))
-        (v2 (build-vertex-from-indexes (aref face 1) world-coords ndc-coords normals tex-coords))
-        (v3 (build-vertex-from-indexes (aref face 2) world-coords ndc-coords normals tex-coords)))
+  (let ((v1 (build-vertex-from-indexes
+             (aref face 0) world-coords ndc-coords normals tex-coords))
+        (v2 (build-vertex-from-indexes
+             (aref face 1) world-coords ndc-coords normals tex-coords))
+        (v3 (build-vertex-from-indexes
+             (aref face 2) world-coords ndc-coords normals tex-coords)))
     (build-triangle v1 v2 v3)))
 
 (defun ndc-xy (ndc)
@@ -81,17 +84,4 @@
 ;;        (tri (build-triangle v1 v2 v3)))
 ;;   (draw-triangle-wire-ndc tri))
 ;; (update-win)
-
-(defparameter *eye* (make-array 3 :element-type 'single-float))
-
-(defparameter *project-mat*
-  (frustum-mat 20 (/ 4 3) 0.3 15))
-
-(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
-;; (list :vertices ;; v
-;;       (length (modelmesh-vertices *bunny-mesh*))
-;;       :tex-coords ;; vt
-;;       (length (modelmesh-tex-coords *bunny-mesh*))
-;;       :normal ;; vn
-;;       (length (modelmesh-normals *bunny-mesh*)))
 
