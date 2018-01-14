@@ -66,7 +66,7 @@
                    (push (mapcar #'float
                                  (mapcar
                                   #'parse-number:parse-number
-                                  (cdr list)))
+                                  (append (cdr list) '("0.0"))))
                          normal-list)
                    (error (format nil
                                   "read-wavefront-obj-file: unknown normal format: ~A"
