@@ -255,6 +255,12 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                  ,(/ (aref vec 1) n)
                  ,(/ (aref vec 2) n)
                  ,(/ (aref vec 3) n))))
+
+(defun vec4->vec3 (vec4)
+  (make-array 3 :element-type 'single-float
+              :initial-contents `(,(aref vec4 0)
+                                   ,(aref vec4 1)
+                                   ,(aref vec4 2))))
 ;; ---------------------------------------------------------
 ;; vec3
 (defun vec3+ (vec1 vec2)
@@ -294,6 +300,15 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                 `(,(/ (aref vec 0) length)
                    ,(/ (aref vec 1) length)
                    ,(/ (aref vec 2) length)))))
+(type-of
+(make-array 3 :element-type 'single-float
+            :initial-element 0.0))
+
+(defun vec3-dot (vec1 vec2)
+  (+ (* (aref vec1 0) (aref vec2 0))
+     (* (aref vec1 1) (aref vec2 1))
+     (* (aref vec1 2) (aref vec2 2))))
+
 ;; ---------------------------------------------------------
 ;; vec2
 (defun vec2+ (vec1 vec2)

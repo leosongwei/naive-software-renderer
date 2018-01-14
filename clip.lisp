@@ -192,5 +192,3 @@
 ;;   (mapcar #'print-triangle-ndc (clip-triangle
 ;;                                 (build-triangle v1 v2 v3))))
 
-(defun clip-polygon (v1 v2 v3)
-  )
