@@ -111,7 +111,7 @@
                                (lambda (v1 v2) (clip-line v1 v2 'z 1.0 '-))))
         (if (null triangles)
             (return-from :loop-on-clip-planes nil))
-        (let ((triangles-local (copy-seq triangles)))
+        (let ((triangles-local triangles))
           (setf triangles nil)
           (dolist (triangle-current triangles-local)
             (let* ((vertex-array (triangle-vertices triangle-current))
