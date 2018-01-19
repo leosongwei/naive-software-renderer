@@ -28,7 +28,7 @@
          (zi2 (float (/ 1 z2))))
     (if (<= height 1)
         nil
-        (dotimes (i (1- height))
+        (dotimes (i height)
           (let* ((y (+ y0 i))
                  (pt (float (/ i height))) ;; t, interpolate
                  (x0p (floor (funcall fp0x y)))
@@ -115,7 +115,7 @@
          (zi2 (float (/ 1 z2))))
     (if (<= height 1)
         nil
-        (dotimes (i (1- height))
+        (dotimes (i height)
           (let* ((y (+ y0 i))
                  (pt (float (/ i height))) ;; t, interpolate
                  (x1p (floor (funcall fp1x y)))
@@ -178,6 +178,100 @@
 ;;   (update-win)
 ;;   (aref z-map 20 26))
 
+(defmacro swap (a b)
+  (let ((c (gensym)))
+    `(let ((,c ,a))
+       (setf ,a ,b)
+       (setf ,b ,c))))
 
-;; (defun draw-triangle-flat (triangle color z-map pixels)
-;;   (let* ((vertices ))))
+(defun ndc-xyz (ndc)
+  (let* ((x (aref ndc 0))
+         (y (aref ndc 1))
+         (z (aref ndc 2)))
+    (values (floor (* (* 0.5 (1- *w*)) (- x -1.0)))
+            (floor (* (* 0.5 (1- *h*)) (- (- y 1.0))))
+            z)))
+
+(defun draw-triangle-flat (triangle color z-map pixels)
+  (block :draw
+    (let* ((vertices (triangle-vertices triangle))
+           (v0 (aref vertices 0))
+           (v1 (aref vertices 1))
+           (v2 (aref vertices 2)))
+      (mvb-let* ((x0 y0 z0 (ndc-xyz (vertex-ndc v0)))
+                 (x1 y1 z1 (ndc-xyz (vertex-ndc v1)))
+                 (x2 y2 z2 (ndc-xyz (vertex-ndc v2))))
+        (if (or (= x0 x1 x2)
+                (= y0 y1 y2))
+            (return-from :draw))
+        (if (> y0 y1)
+            (progn (swap x0 x1)
+                   (swap y0 y1)
+                   (swap z0 z1)))
+        (if (> y0 y2)
+            (progn (swap x0 x2)
+                   (swap y0 y2)
+                   (swap z0 z2)))
+        (if (> y1 y2)
+            (progn (swap x1 x2)
+                   (swap y1 y2)
+                   (swap z1 z2)))
+        (cond ((= y0 y1) ;; p0 p1 p2
+               (progn    ;; p0 p2 p1
+                 (if (not (< x0 x1))
+                     (progn (swap x0 x1)
+                            (swap y0 y1)
+                            (swap z0 z1)))
+                 (draw-top-even-triangle-flat
+                  x0 y0 z0 x2 y2 z2 x1 y1 z1 color z-map pixels)))
+              ((= y1 y2)
+               (progn
+                 (if (not (< x1 x2))
+                     (progn (swap x1 x2)
+                            (swap y1 y2)
+                            (swap z1 z2)))
+                 (draw-bottom-even-triangle-flat
+                  x0 y0 z0 x1 y1 z1 x2 y2 z2 color z-map pixels)))
+              (t
+               (progn
+                 (if (not (< x1 x2))
+                     (progn (swap x1 x2)
+                            (swap y1 y2)
+                            (swap z1 z2)))
+                 (if (< y2 y1)
+                     ;; split on p0 - p1
+                     (let* ((new-x (floor (+ x0
+                                             (* (- x1 x0)
+                                                (/ (- y2 y0)
+                                                   (- y1 y0))))))
+                            (new-y y2)
+                            (pt (float (/ (- y2 y0) (- y1 y0))))
+                            (new-z (float (/ 1  (+ (* (- 1.0 pt) (/ 1 z0))
+                                                   (* pt (/ 1 z1)))))))
+                       (draw-bottom-even-triangle-flat
+                        x0 y0 z0 new-x new-y new-z x2 y2 z2 color z-map pixels)
+                       (draw-top-even-triangle-flat
+                        new-x new-y new-z x1 y1 z1 x2 y2 z2 color z-map pixels))
+                     (let* ((new-x (floor (+ x0
+                                             (* (- x2 x0)
+                                                (/ (- y1 y0)
+                                                   (- y2 y0))))))
+                            (new-y y1)
+                            (pt (float (/ (- y1 y0) (- y2 y0))))
+                            (new-z (float (/ 1 (+ (* (- 1.0 pt) (/ 1 z0))
+                                                  (* pt (/ 1 z2)))))))
+                       (draw-bottom-even-triangle-flat
+                        x0 y0 z0 x1 y1 z1 new-x new-y new-z color z-map pixels)
+                       (draw-top-even-triangle-flat
+                        x1 y1 z1 x2 y2 z2 new-x new-y new-z color z-map pixels))))))))))
+
+;; (progn
+;;   (clear)
+;;   (let* ((v1 (make-vertex :ndc #(-0.5 0.5 0.5 1.0)))
+;;          (v2 (make-vertex :ndc #(0.7 -0.5 0.5 1.0)))
+;;          (v3 (make-vertex :ndc #(0.1 -0.7 0.5 1.0)))
+;;          (tri (build-triangle v1 v2 v3))
+;;          (z-map (make-array `(,*w* ,*h*) :element-type 'single-float :initial-element 1.0))
+;;          (pixels *sdl2-pixel-buffer*))
+;;     (draw-triangle-flat tri (map-color 255 255 0) z-map pixels))
+;;   (update-win))

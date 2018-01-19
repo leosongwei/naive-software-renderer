@@ -44,37 +44,40 @@
                  (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
      (update-win))))
 
-;; loop forever
 (let* ((vertices (modelmesh-vertices *bunny-mesh*))
        (tex-coords (modelmesh-tex-coords *bunny-mesh*))
        (normals (modelmesh-normals *bunny-mesh*))
        (faces (modelmesh-faces *bunny-mesh*))
        ;; -------------------------
-       (trans-mat (3d-trans-mat 0.0 -1.0 -10.0))
+       (trans-mat (3d-trans-mat 1.8 -2.0 -10.0))
        (scale-mat (3d-scale 5.0))
-       (view-vec #(0.0 0.0 -1.0)))
-  (loop
-     (dotimes (i 360)
-       (sleep 0.03)
-       (clear)
-       (let* ((rot-mat (3d-rotate-y (mod i 360)))
-              (trans-world (mul-44-44 trans-mat
-                                      (mul-44-44 rot-mat scale-mat)))
-              (world-norms (apply-transform normals trans-world))
-              (world-coords (apply-transform vertices trans-world))
-              (proj-coords (apply-transform world-coords *project-mat*))
-              (ndc-coords (vertices-ndc proj-coords)))
-         (dotimes (i (length faces))
-           (let* ((face (aref faces i))
-                  (triangle (build-triangle-from-face
-                             face world-coords ndc-coords world-norms tex-coords))
-                  (a-normal (vec4->vec3
-                             (vertex-normal
-                              (aref (triangle-vertices triangle) 0)))))
-             (if (< (vec3-dot a-normal view-vec) 0)
-                 (let ((cliped-triangles (clip-triangle triangle)))
-                   (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
-       (update-win))))
+       ;(view-vec #(0.0 0.0 -1.0))
+       (eye-pos (make-array 4 :element-type 'single-float
+                            :initial-contents '(0.0 0.0 0.0 1.0))))
+  (dotimes (i 360)
+    (sleep 0.04)
+    (clear)
+    (let* ((rot-mat (3d-rotate-y (mod i 360)))
+           (trans-world (mul-44-44 trans-mat
+                                   (mul-44-44 rot-mat scale-mat)))
+           (world-norms (apply-transform normals trans-world))
+           (world-coords (apply-transform vertices trans-world))
+           (proj-coords (apply-transform world-coords *project-mat*))
+           (ndc-coords (vertices-ndc proj-coords)))
+      (dotimes (i (length faces))
+        (let* ((face (aref faces i))
+               (triangle (build-triangle-from-face
+                          face world-coords ndc-coords world-norms tex-coords))
+               (view-vec (vec4->vec3
+                          (vec4- (vertex-coord (aref (triangle-vertices triangle) 0))
+                                 eye-pos)))
+               (a-normal (vec4->vec3
+                          (vertex-normal
+                           (aref (triangle-vertices triangle) 0)))))
+          (if (< (vec3-dot a-normal view-vec) 0)
+              (let ((cliped-triangles (clip-triangle triangle)))
+                (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
+    (update-win)))
 
 ;; (destroy-window)
 
