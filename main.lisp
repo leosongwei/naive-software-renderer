@@ -9,7 +9,6 @@
 (load "wavefront-obj.lisp")
 (load "transform.lisp")
 (load "model.lisp")
-(load "rasterization.lisp")
 
 ;;;; window coordinate (x y):
 ;; (0, 0) (1, 0)
@@ -22,6 +21,7 @@
 
 (defparameter *w* 640)
 (defparameter *h* 480)
+(load "rasterization.lisp")
 (load "init.lisp")
 
 ;; todo:

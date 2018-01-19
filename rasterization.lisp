@@ -177,3 +177,7 @@
 ;;      red z-map pixels))
 ;;   (update-win)
 ;;   (aref z-map 20 26))
+
+
+;; (defun draw-triangle-flat (triangle color z-map pixels)
+;;   (let* ((vertices ))))
