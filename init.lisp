@@ -1,7 +1,3 @@
-(ql:quickload "sdl2")
-(ql:quickload "cl-autowrap")
-(ql:quickload "cffi")
-
 (cffi:load-foreign-library #p"./cutils/libcutils.so")
 (cffi:defcfun "SDL_Surface_pixels" :pointer
   (sdl2-surface-prt :pointer))

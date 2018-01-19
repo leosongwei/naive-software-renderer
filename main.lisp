@@ -1,5 +1,7 @@
-(ql:quickload 'cffi)
 (ql:quickload 'parse-number)
+(ql:quickload "sdl2")
+(ql:quickload "cl-autowrap")
+(ql:quickload "cffi")
 
 (load "utils.lisp")
 (load "matrix.lisp")
@@ -7,7 +9,7 @@
 (load "wavefront-obj.lisp")
 (load "transform.lisp")
 (load "model.lisp")
-
+(load "rasterization.lisp")
 
 ;;;; window coordinate (x y):
 ;; (0, 0) (1, 0)
@@ -84,4 +86,7 @@
 ;;        (tri (build-triangle v1 v2 v3)))
 ;;   (draw-triangle-wire-ndc tri))
 ;; (update-win)
+
+(defmacro dot-offset (x y w)
+  `(+ (* ,y ,w) ,x))
 
