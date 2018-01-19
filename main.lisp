@@ -97,6 +97,6 @@
 
 (defun vec3-int-color (vec3)
   (let ((clamped (vec3-clamp vec3)))
-    (map-color (floor (aref clamped 0))
-               (floor (aref clamped 1))
-               (floor (aref clamped 2)))))
+    (map-color (floor (* 255 (aref clamped 0)))
+               (floor (* 255 (aref clamped 1)))
+               (floor (* 255 (aref clamped 2))))))
