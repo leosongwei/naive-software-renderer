@@ -90,3 +90,13 @@
 (defmacro dot-offset (x y w)
   `(+ (* ,y ,w) ,x))
 
+(defun make-z-map ()
+  (make-array `(,*w* ,*h*)
+              :element-type 'single-float
+              :initial-element 1.0))
+
+(defun vec3-int-color (vec3)
+  (let ((clamped (vec3-clamp vec3)))
+    (map-color (floor (aref clamped 0))
+               (floor (aref clamped 1))
+               (floor (aref clamped 2)))))

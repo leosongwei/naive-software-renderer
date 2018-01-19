@@ -263,6 +263,11 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                                    ,(aref vec4 2))))
 ;; ---------------------------------------------------------
 ;; vec3
+
+(defun make-vec3 (x y z)
+  (make-array 3 :element-type 'single-float
+              :initial-contents `(,x ,y ,z)))
+
 (defun vec3+ (vec1 vec2)
   (make-array 3 :element-type 'single-float
               :initial-contents
@@ -300,14 +305,33 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                 `(,(/ (aref vec 0) length)
                    ,(/ (aref vec 1) length)
                    ,(/ (aref vec 2) length)))))
-(type-of
-(make-array 3 :element-type 'single-float
-            :initial-element 0.0))
+;; (type-of
+;; (make-array 3 :element-type 'single-float
+;;             :initial-element 0.0))
 
 (defun vec3-dot (vec1 vec2)
   (+ (* (aref vec1 0) (aref vec2 0))
      (* (aref vec1 1) (aref vec2 1))
      (* (aref vec1 2) (aref vec2 2))))
+
+(defun vec3-clamp (vec3 &optional (lb 0.0) (ub 1.0))
+  (make-array 3 :element-type 'single-float
+              :initial-contents
+              `(,(max lb (min (aref vec3 0) ub))
+                 ,(max lb (min (aref vec3 1) ub))
+                 ,(max lb (min (aref vec3 2) ub)))))
+
+(defun vec3-reflection (vec normal)
+  (vec3- vec (vec3* normal (* 2.0 (vec3-dot vec normal)))))
+;;
+;; p0   |   p2   (vec3-reflection p0->p1 normal)
+;;  \   |   /    > p0->p2
+;;   \  |  /     ;; "normal" should be normalized
+;;    \ | /
+;; ==== p1 ===
+;; (vec3-reflection (make-vec3 1.0 -1.0 0.0)
+;;                  (make-vec3 0.0 1.0 0.0))
+;; > #(1.0 1.0 0.0)
 
 ;; ---------------------------------------------------------
 ;; vec2
