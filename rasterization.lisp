@@ -1,6 +1,43 @@
+(defun ndc-xy (ndc)
+  (let* ((x (aref ndc 0))
+         (y (aref ndc 1)))
+    (values (floor (* (* 0.5 (1- *w*)) (- x -1.0)))
+            (floor (* (* 0.5 (1- *h*)) (- (- y 1.0)))))))
+
+(defun draw-line (v1 v2)
+  (multiple-value-bind (x1 y1) (ndc-xy (vertex-ndc v1))
+    (multiple-value-bind (x2 y2) (ndc-xy (vertex-ndc v2))
+      (c-draw-line x1 y1 x2 y2 #xffff00ff *sdl2-pixel-buffer* *w*))))
+
+(defun draw-triangle-wire-ndc (triangle)
+  (let* ((vertices (triangle-vertices triangle))
+         (v1 (aref vertices 0))
+         (v2 (aref vertices 1))
+         (v3 (aref vertices 2)))
+    (draw-line v1 v2)
+    (draw-line v2 v3)
+    (draw-line v3 v1)))
+;; (clear)
+;; (let* ((v1 (make-vertex :ndc #(-0.5 0.5 0.5 1.0)))
+;;        (v2 (make-vertex :ndc #(-0.2 -0.5 0.5 1.0)))
+;;        (v3 (make-vertex :ndc #(0.5 0.5 0.5 1.0)))
+;;        (tri (build-triangle v1 v2 v3)))
+;;   (draw-triangle-wire-ndc tri))
+;; (update-win)
 
 (defmacro dot-offset (x y w)
   `(+ (* ,y ,w) ,x))
+
+(defun make-z-map ()
+  (make-array `(,*w* ,*h*)
+              :element-type 'single-float
+              :initial-element 1.0))
+
+(defun vec3-int-color (vec3)
+  (let ((clamped (vec3-clamp vec3)))
+    (map-color (floor (* 255 (aref clamped 0)))
+               (floor (* 255 (aref clamped 1)))
+               (floor (* 255 (aref clamped 2))))))
 
 (defmacro swap (a b)
   (let ((c (gensym)))
