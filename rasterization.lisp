@@ -26,14 +26,14 @@
          (zi0 (float (/ 1 z0))) ;; Linear interpolaton can apply to inverse Z
          (zi1 (float (/ 1 z1)))
          (zi2 (float (/ 1 z2))))
-    (if (<= height 1)
+    (if (= height 0)
         nil
         (dotimes (i height)
           (let* ((y (+ y0 i))
                  (pt (float (/ i height))) ;; t, interpolate
                  (x0p (floor (funcall fp0x y)))
                  (zi0p (+ (* (- 1.0 pt) zi0) (* pt zi1)))
-                 (x1p (floor (funcall fp1x y)))
+                 (x1p (ceiling (funcall fp1x y)))
                  (zi2p (+ (* (- 1.0 pt) zi2) (* pt zi1)))
                  (length (- x1p x0p)))
             (if (= 0 length)
@@ -113,14 +113,14 @@
          (zi0 (float (/ 1 z0))) ;; Linear interpolaton can apply to inverse Z
          (zi1 (float (/ 1 z1)))
          (zi2 (float (/ 1 z2))))
-    (if (<= height 1)
+    (if (= height 0)
         nil
         (dotimes (i height)
           (let* ((y (+ y0 i))
                  (pt (float (/ i height))) ;; t, interpolate
                  (x1p (floor (funcall fp1x y)))
                  (zi1p (+ (* (- 1.0 pt) zi0) (* pt zi1)))
-                 (x2p (floor (funcall fp2x y)))
+                 (x2p (ceiling (funcall fp2x y)))
                  (zi2p (+ (* (- 1.0 pt) zi0) (* pt zi2)))
                  (length (- x2p x1p)))
             (if (= 0 length)

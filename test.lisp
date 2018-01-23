@@ -136,7 +136,7 @@
                               :initial-contents '(10.0 10.0 0.0 1.0)))
        (eye-pos (make-array 4 :element-type 'single-float
                             :initial-contents '(0.0 0.0 0.0 1.0))))
-  (dotimes (i (* 360 4))
+  (dotimes (i 360)
     (clear)
     (let* ((rot-mat (3d-rotate-y (mod i 360)))
            (trans-world (mul-44-44 trans-mat
