@@ -21,8 +21,9 @@
 
 (defparameter *w* 640)
 (defparameter *h* 480)
-(load "rasterization.lisp")
+
 (load "init.lisp")
+(load "rasterization.lisp")
 
 ;; todo:
 ;; establish screen buffer
