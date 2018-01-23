@@ -62,8 +62,12 @@
 (defmacro ndc-z (ndc)
   `(aref ,ndc 0))
 
+(type-of (map-color 1 1 1))
+
 (defun draw-triangle-flat (triangle color z-map pixels)
-  (declare (optimize (speed 3) (safety 0)))
+  (declare (optimize (speed 3) (safety 0))
+           (type (simple-array single-float (* *)))
+           (type (unsigned-byte 32) color))
   (block :draw
     (let* ((vertices (triangle-vertices triangle))
            (v0-ndc (vertex-ndc (aref vertices 0)))
@@ -82,6 +86,7 @@
                (zi2 (float (/ 1.0 z2))))
           ;; draw top
           (let* ((height (- y1 y0)))
+            (declare (type (unsigned-byte 16) height))
             (dotimes (i height)
               (let* ((y (+ y0 i))
                      (t1 (float (/ i height)))
@@ -96,6 +101,8 @@
                      (x2p (if (= x0 x2) x0 (floor (+ x0 (* (- x2 x0)
                                                            (/ (- y y0)
                                                               (- y2 y0))))))))
+                (declare (type (unsigned-byte 16) y x1p x2p)
+                         (type single-float t1 zi1p t2 zi2p))
                 (if (= 0 (- x1p x2p))
                     nil
                     (progn
@@ -105,6 +112,8 @@
                              (x x1p)
                              (zi zi1p)
                              (dzi (float (/ (- zi2p zi1p) length))))
+                        (declare (type (unsigned-byte 16) length x)
+                                 (type single-float zi dzi))
                         (dotimes (j length)
                           (let ((z (float (/ 1.0 zi)))
                                 (z-map-depth (aref z-map x y)))
@@ -119,6 +128,7 @@
           ;; draw bottom
           (let* ((height (- y2 y1))
                  (dy0y1 (- y1 y0)))
+            (declare (type (unsigned-byte 16) height dy0y1))
             (dotimes (i height)
               (let* ((y (+ y1 i))
                      (t1 (float (/ i height)))
@@ -133,6 +143,8 @@
                      (x2p (if (= x0 x2) x0 (floor (+ x0 (* (- x2 x0)
                                                            (/ (- y y0)
                                                               (- y2 y0))))))))
+                (declare (type (unsigned-byte 16) y x1p x2p)
+                         (type single-float t1 zi1p t2 zi2p))
                 (if (= 0 (- x1p x2p))
                     nil
                     (progn
@@ -142,6 +154,8 @@
                              (x x1p)
                              (zi zi1p)
                              (dzi (float (/ (- zi2p zi1p) length))))
+                        (declare (type (unsigned-byte 16) length x)
+                                 (type single-float zi dzi))
                         (dotimes (j length)
                           (let ((z (float (/ 1.0 zi)))
                                 (z-map-depth (aref z-map x y)))
