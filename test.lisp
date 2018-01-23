@@ -1,9 +1,8 @@
-(defparameter *eye* (make-array 3 :element-type 'single-float))
-
-(defparameter *project-mat*
-  (frustum-mat 20 (/ 4 3) 0.3 15))
-
-(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
+(progn
+  (defparameter *eye* (make-array 3 :element-type 'single-float))
+  (defparameter *project-mat*
+    (frustum-mat 20 (/ 4 3) 0.3 15))
+  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj")))
 ;; (list :vertices ;; v
 ;;       (length (modelmesh-vertices *bunny-mesh*))
 ;;       :tex-coords ;; vt
@@ -136,7 +135,6 @@
                               :initial-contents '(10.0 10.0 0.0 1.0)))
        (eye-pos (make-array 4 :element-type 'single-float
                             :initial-contents '(0.0 0.0 0.0 1.0))))
-  (loop
   (dotimes (i 360)
     (clear 0 0 0)
     (let* ((rot-mat (3d-rotate-y (mod i 360)))
@@ -178,7 +176,7 @@
           (if (> (vec3-dot a-normal view-vec) 0) ;; 
               (let ((cliped-triangles (clip-triangle triangle)))
                 (mapcar draw-func cliped-triangles))))))
-    (update-win)))))
+    (update-win))))
 
 ;; (destroy-window)
 
