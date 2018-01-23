@@ -10,7 +10,7 @@
 ;;       (length (modelmesh-tex-coords *bunny-mesh*))
 ;;       :normal ;; vn
 ;;       (length (modelmesh-normals *bunny-mesh*)))
-
+(destroy-window)
 (init-window :w 640 :h 480)
 
 ;; normal projections are not calculated yet!
@@ -168,7 +168,7 @@
                (draw-func (lambda (tri)
                             (draw-triangle-flat tri color-int z-map
                                                 *sdl2-pixel-buffer*))))
-          (if t;(> (vec3-dot a-normal view-vec) 0)
+          (if (> (vec3-dot a-normal view-vec) 0)
               (let ((cliped-triangles (clip-triangle triangle)))
                 (mapcar draw-func cliped-triangles))))))
     (update-win))))
