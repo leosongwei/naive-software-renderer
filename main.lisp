@@ -25,24 +25,6 @@
 (load "init.lisp")
 (load "rasterization.lisp")
 
-;; todo:
-;; establish screen buffer
-;; load triangles frome obj file
-;; traverse in triangles:
-;;   1. do modelview transform
-;;   2. project transform
-;;   3. convert to NDC
-;;   4. draw wire frame
-;;      1. get coordinate and color
-;;      2. do depth test
-;;      3. draw
-;;   5. swap buffer
-
-;; (init-window)
-;; (clear)
-;; (c-draw-line 10 10 100 200 #xffff00ff *sdl2-pixel-buffer* *w*)
-;; (update-win)
-
 (defun build-vertex-from-indexes (attrib-index world-coords ndc-coords normals tex-coords)
   (let ((coord-index (aref attrib-index 0))
         (tex-coord-index (aref attrib-index 1))
