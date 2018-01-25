@@ -1,4 +1,5 @@
 (progn
+  (load "main.lisp")
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
     (frustum-mat 20 (/ 4 3) 0.8 15))
@@ -130,6 +131,7 @@
        (faces (modelmesh-faces *bunny-mesh*))
        ;; -------------------------
        (trans-mat (3d-trans-mat 0.0 -1.0 -10.0))
+       ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
        (scale-mat (3d-scale 5.0))
        ;;(view-vec #(0.0 0.0 -1.0))
        ;; camera at 0,0,0, no need to transform light-pos
