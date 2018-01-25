@@ -224,6 +224,10 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 ;; Vector Calculation
 ;; ---------------------------------------------------------
 ;; vec2
+(defun make-vec4 (x y z w)
+  (make-array 4 :element-type 'single-float
+              :initial-contents `(,x ,y ,z ,w)))
+
 (defun vec4+ (vec1 vec2)
   (make-array 4 :element-type 'single-float
               :initial-contents
@@ -361,21 +365,45 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 
 ;; -------------------------------------------
 
+(let ((a '+)
+      (b '-))
+  `(,a (,b)))
+
+(defmacro interpolate-macro (m+ m* m- a b pt)
+  `(,m+ ,a (,m* (,m- ,b ,a) ,pt)))
+
+(defmacro itplt-m (m+ m* m- a b pt)
+  `(,m+ ,a (,m* (,m- ,b ,a) ,pt)))
+
+(defmacro itplt-num (a b pt)
+  `(itplt-m + * - ,a ,b ,pt))
+
 (defun interpolate-vertex (v1 v2 pt)
   (make-vertex :coord (let ((c1 (vertex-coord v1))
                             (c2 (vertex-coord v2)))
                         (vec4+ c1 (vec4* (vec4- c2 c1) pt)))
-               :ndc (let ((ndc1 (vertex-ndc v1))
-                          (ndc2 (vertex-ndc v2)))
-                      (vec4+ ndc1 (vec4* (vec4- ndc2 ndc1) pt)))
+               :ndc (let* ((ndc1 (vertex-ndc v1))
+                           (ndc2 (vertex-ndc v2))
+                           (x1 (aref ndc1 0))
+                           (y1 (aref ndc1 1))
+                           (zi1 (float (/ 1.0 (aref ndc1 2))))
+                           (w1 (aref ndc1 3))
+                           (x2 (aref ndc2 0))
+                           (y2 (aref ndc2 1))
+                           (zi2 (float (/ 1.0 (aref ndc2 2))))
+                           (w2 (aref ndc2 3)))
+                      (make-vec4 (itplt-num x1 x2 pt)
+                                 (itplt-num y1 y2 pt)
+                                 (float (/ 1.0 (itplt-num zi1 zi2 pt)))
+                                 (itplt-num w1 w2 pt)))
                :normal (let ((n1 (vertex-normal v1))
                              (n2 (vertex-normal v2)))
                          (vec3+ (vec3* n1 (- 1 pt))
                                 (vec3* n2 pt)))
-               :color (let ((color1 (vertex-color v1))
-                            (color2 (vertex-color v2)))
-                        (vec3+ (vec3* color1 (- 1 pt))
-                               (vec3* color2 pt)))
+               ;; :color (let ((color1 (vertex-color v1))
+               ;;              (color2 (vertex-color v2)))
+               ;;          (vec3+ (vec3* color1 (- 1 pt))
+               ;;                 (vec3* color2 pt)))
                :tex-coord (let ((tc1 (vertex-tex-coord v1))
                                  (tc2 (vertex-tex-coord v2)))
                              (vec2+ tc1 (vec2* (vec2- tc2 tc1) pt)))))
