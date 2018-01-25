@@ -1,7 +1,7 @@
 (progn
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
-    (frustum-mat 20 (/ 4 3) 0.3 15))
+    (frustum-mat 20 (/ 4 3) 0.8 15))
   (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj")))
 ;; (list :vertices ;; v
 ;;       (length (modelmesh-vertices *bunny-mesh*))
@@ -11,6 +11,9 @@
 ;;       (length (modelmesh-normals *bunny-mesh*)))
 (destroy-window)
 (init-window :w 640 :h 480)
+(init-window :w 320 :h 240)
+
+;;(defparameter *teapot* (wavefront-file-to-modelmesh #p"teapot-low.obj"))
 
 ;; normal projections are not calculated yet!
 (time
@@ -22,7 +25,7 @@
         (trans-mat (3d-trans-mat 0.0 -1.0 -10.0))
         (scale-mat (3d-scale 5.0))
         (view-vec #(0.0 0.0 -1.0)))
-   (dotimes (i 1000)
+   (dotimes (i 360)
      (clear)
      (let* ((rot-mat (3d-rotate-y (mod i 360)))
             (trans-world (mul-44-44 trans-mat
@@ -173,7 +176,7 @@
                (draw-func (lambda (tri)
                             (draw-triangle-flat tri color-int z-map
                                                 *sdl2-pixel-buffer*))))
-          (if (> (vec3-dot a-normal view-vec) 0)
+          (if t;(> (vec3-dot a-normal view-vec) 0)
               (let ((cliped-triangles (clip-triangle triangle)))
                 (mapcar draw-func cliped-triangles))))))
     (update-win))))
