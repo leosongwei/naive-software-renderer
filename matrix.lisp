@@ -300,6 +300,18 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                  ,(/ (aref vec 1) n)
                  ,(/ (aref vec 2) n))))
 
+
+
+(defmacro ndc-x (ndc)
+  `(aref ,ndc 0))
+
+(defmacro ndc-y (ndc)
+  `(aref ,ndc 0))
+
+(defmacro ndc-z (ndc)
+  `(aref ,ndc 0))
+
+
 (defun vec3-normalize (vec)
   (let* ((length (sqrt (+ (expt (aref vec 0) 2)
                           (expt (aref vec 1) 2)

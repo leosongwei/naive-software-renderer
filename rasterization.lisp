@@ -53,17 +53,6 @@
             (floor (* (* 0.5 (1- *h*)) (- (- y 1.0))))
             z)))
 
-(defmacro ndc-x (ndc)
-  `(aref ,ndc 0))
-
-(defmacro ndc-y (ndc)
-  `(aref ,ndc 0))
-
-(defmacro ndc-z (ndc)
-  `(aref ,ndc 0))
-
-(type-of (map-color 1 1 1))
-
 (defun draw-triangle-flat (triangle color z-map pixels)
   (declare (optimize (speed 3) (safety 0))
            (type (simple-array single-float (* *)))
