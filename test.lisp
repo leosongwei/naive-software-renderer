@@ -2,7 +2,8 @@
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
     (frustum-mat 20 (/ 4 3) 0.8 15))
-  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj")))
+  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
+  (init-window :w 640 :h 480))
 ;; (list :vertices ;; v
 ;;       (length (modelmesh-vertices *bunny-mesh*))
 ;;       :tex-coords ;; vt
@@ -10,7 +11,6 @@
 ;;       :normal ;; vn
 ;;       (length (modelmesh-normals *bunny-mesh*)))
 (destroy-window)
-(init-window :w 640 :h 480)
 (init-window :w 320 :h 240)
 
 ;;(defparameter *teapot* (wavefront-file-to-modelmesh #p"teapot-low.obj"))

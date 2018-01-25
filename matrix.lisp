@@ -11,11 +11,11 @@
     a))
 
 (defstruct (vertex (:copier copy-vertex))
-  (coord (make-array 4 :element-type 'single-float))
-  (ndc (make-array 4 :element-type 'single-float))
-  (normal (make-array 3 :element-type 'single-float))
-  (color (make-array 3 :element-type 'single-float))
-  (tex-coord (make-array 2 :element-type 'single-float)))
+  (coord (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
+  (ndc (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
+  (normal (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
+  (color (make-array 3 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (3)))
+  (tex-coord (make-array 2 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (2))))
 
 (defun copy-vertex (vertex)
   (make-vertex :coord (copy-float-array (vertex-coord vertex))
@@ -34,7 +34,8 @@
   (vertices (make-array 3 :element-type 'vertex
                         :initial-contents `(,(make-vertex)
                                              ,(make-vertex)
-                                             ,(make-vertex)))))
+                                             ,(make-vertex)))
+            :type (simple-vector 3)))
 
 (defun copy-triangle (triangle)
   (let ((vertices (triangle-vertices triangle)))
