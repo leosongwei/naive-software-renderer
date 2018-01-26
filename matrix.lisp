@@ -204,8 +204,6 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                                   (0.0 0.0 ,s  0.0)
                                   (0.0 0.0 0.0 1.0))))
 
-(tan (/ pi 6))
-
 (defun frustum-mat (degree-y aspect znear zfar)
   ;; https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
   ;; fov-y: angle in degree
@@ -227,9 +225,17 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 ;; Vector Calculation
 ;; ---------------------------------------------------------
 ;; vec2
-(defun make-vec4 (x y z w)
-  (make-array 4 :element-type 'single-float
-              :initial-contents `(,x ,y ,z ,w)))
+;; (defun make-vec4 (x y z w)
+;;   (make-array 4 :element-type 'single-float
+;;               :initial-contents `(,x ,y ,z ,w)))
+
+(defmacro make-vec4 (x y z w)
+  (let ((n0 (gensym)) (n1 (gensym))
+        (n2 (gensym)) (n3 (gensym)))
+    `(let ((,n0 ,x) (,n1 ,y)
+           (,n2 ,z) (,n3 ,w))
+      (make-array 4 :element-type 'single-float
+               :initial-contents (list ,n0 ,n1 ,n2 ,n3)))))
 
 (defun vec4+ (vec1 vec2)
   (make-array 4 :element-type 'single-float
@@ -377,11 +383,35 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
               `(,(/ (aref vec 0) n)
                  ,(/ (aref vec 1) n))))
 
-;; -------------------------------------------
+(defun make-vec2 (x y)
+  (make-array 2 :element-type 'single-float
+              :initial-contents `(,x ,y)))
 
-(let ((a '+)
-      (b '-))
-  `(,a (,b)))
+;; (time
+;;  (dotimes (i 10000000000)
+;;    (let ((a (make-array 4 :element-type 'single-float
+;;                         :initial-contents `(,(float i) ,(+ 1.0 i) ,(+ 2.0 i) ,(+ 3.0 i)))))
+;;      a)))
+;; (time
+;;  (dotimes (i 10000000000)
+;;    (let* ((n0 (float i))
+;;           (n1 (+ 1.0 i))
+;;           (n2 (+ 2.0 i))
+;;           (n3 (+ 3.0 i))
+;;           (a (make-array 4 :element-type 'single-float
+;;                          :initial-contents (list n0 n1 n2 n3))))
+;;      a)))
+;;
+;; (time
+;;  (dotimes (i 1000000000) ;; 10x slower
+;;    (let ((a (make-array 4 :element-type 'single-float :initial-element 0.0)))
+;;      (setf (aref a 0) (float i))
+;;      (setf (aref a 1) (+ 1.0 i))
+;;      (setf (aref a 2) (+ 2.0 i))
+;;      (setf (aref a 3) (+ 3.0 i))
+;;      a)))
+
+;; -------------------------------------------
 
 (defmacro interpolate-macro (m+ m* m- a b pt)
   `(,m+ ,a (,m* (,m- ,b ,a) ,pt)))
@@ -419,6 +449,81 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                :tex-coord (let ((tc1 (vertex-tex-coord v1))
                                  (tc2 (vertex-tex-coord v2)))
                              (vec2+ tc1 (vec2* (vec2- tc2 tc1) pt)))))
+
+(defmacro grad (a b len) ;; a->b, length
+  `(/ (- ,b ,a) ,len))
+
+(defun dvertex (v1 v2 length)
+  "make a vertex gradient for shading"
+  (make-vertex :coord (let* ((p1 (vertex-coord v1))
+                             (p2 (vertex-coord v2))
+                             (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
+                             (x2 (aref p2 0)) (y2 (aref p2 1)) (z2 (aref p2 2)))
+                        (make-vec4 (float (grad x1 x2 length))
+                                   (float (grad y1 y2 length))
+                                   (float (grad z1 z2 length))
+                                   0.0))
+               :ndc (let* ((p1 (vertex-ndc v1))
+                           (p2 (vertex-ndc v2))
+                           (x1 (aref p1 0)) (y1 (aref p1 1))
+                           (zi1 (float (/ 1.0 (aref p1 2))))
+                           (x2 (aref p2 0)) (y2 (aref p2 1))
+                           (zi2 (float (/ 1.0 (aref p2 2)))))
+                      (make-vec4 (float (grad x1 x2 length))
+                                 (float (grad y1 y2 length))
+                                 (float (/ 1.0 (grad zi1 zi2 length)))
+                                 0.0))
+               :normal (let* ((p1 (vertex-normal v1))
+                              (p2 (vertex-normal v2))
+                              (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
+                              (x2 (aref p2 0)) (y2 (aref p2 1)) (z2 (aref p2 2)))
+                         (make-vec4 (float (grad x1 x2 length))
+                                    (float (grad y1 y2 length))
+                                    (float (grad z1 z2 length))
+                                    0.0))
+               :tex-coord (let* ((p1 (vertex-tex-coord v1))
+                                 (p2 (vertex-tex-coord v2))
+                                 (x1 (aref p1 0)) (y1 (aref p1 1))
+                                 (x2 (aref p2 0)) (y2 (aref p2 1)))
+                            (make-vec2 (float (grad x1 x2 length))
+                                       (float (grad y1 y2 length))))))
+
+(defun vertex+f (v1 v2)
+  (declare (type vertex v1 v2) (optimize (speed 3)))
+  "assign v1 as add v1, v2"
+  ;; coord
+  (let* ((p1 (vertex-coord v1))
+         (p2 (vertex-coord v2))
+         (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
+         (x2 (aref p2 0)) (y2 (aref p2 1)) (z2 (aref p2 2)))
+    (setf (aref p1 0) (+ x1 x2))
+    (setf (aref p1 1) (+ y1 y2))
+    (setf (aref p1 2) (+ z1 z2)))
+  ;; ndc
+  (let* ((p1 (vertex-ndc v1))
+         (p2 (vertex-ndc v2))
+         (x1 (aref p1 0)) (y1 (aref p1 1))
+         (zi1 (float (/ 1.0 (aref p1 2))))
+         (x2 (aref p2 0)) (y2 (aref p2 1))
+         (zi2 (float (/ 1.0 (aref p2 2)))))
+    (setf (aref p1 0) (+ x1 x2))
+    (setf (aref p1 1) (+ y1 y2))
+    (setf (aref p1 2) (float (/ 1.0 (+ zi1 zi2)))))
+  ;; normal
+  (let* ((p1 (vertex-normal v1))
+         (p2 (vertex-normal v2))
+         (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
+         (x2 (aref p2 0)) (y2 (aref p2 1)) (z2 (aref p2 2)))
+    (setf (aref p1 0) (+ x1 x2))
+    (setf (aref p1 1) (+ y1 y2))
+    (setf (aref p1 2) (+ z1 z2)))
+  ;; tex coord
+  (let* ((p1 (vertex-tex-coord v1))
+         (p2 (vertex-tex-coord v2))
+         (x1 (aref p1 0)) (y1 (aref p1 1))
+         (x2 (aref p2 0)) (y2 (aref p2 1)))
+    (setf (aref p1 0) (+ x1 x2))
+    (setf (aref p1 1) (+ y1 y2))))
 
 (defun vec4-ndc (vec4)
   "transform a vec4 to NDC(Normalized Device Coordinate)
