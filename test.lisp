@@ -123,7 +123,14 @@
                  (mapcar draw-func cliped-triangles))))))
      (update-win))))
 
+(require :sb-sprof)
+
+(declaim (optimize speed))
+
 ;; flat
+;; (sb-sprof:with-profiling (:max-samples 10000
+;;                                :mode :alloc
+;;                                :report :flat)
 (time
 (let* ((vertices (modelmesh-vertices *bunny-mesh*))
        (tex-coords (modelmesh-tex-coords *bunny-mesh*))

@@ -1,0 +1,11 @@
+;; flat shading
+
+(load "main.lisp")
+
+(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
+
+(defparameter *eye* (make-array 3 :element-type 'single-float))
+(defparameter *project-mat*
+  (frustum-mat 20 (/ 4 3) 0.8 15))
+
+(init-window :w 640 :h 480)

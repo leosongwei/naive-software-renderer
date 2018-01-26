@@ -1,3 +1,5 @@
+(declaim (optimize (speed 3) (safety 0)))
+
 ;; vertex
 ;;   3f: model space coord
 ;;   3f: normal
