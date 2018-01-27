@@ -223,7 +223,6 @@
    shader: (shader triangle vertex-at-pixel) => color(int32, rgba)
            the shader function should not alter the triangle and vertex"
   (declare (optimize (speed 3) (safety 0))
-           (inline vertex+f)
            (type (simple-array single-float (* *))))
   (block :draw
     (let* ((vertices (triangle-vertices triangle))

@@ -2,8 +2,9 @@
   (load "main.lisp")
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
-    (frustum-mat 20 (/ 4 3) 0.8 15))
+    (frustum-mat 20 (/ 4 3) 0.1 15))
   (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
+  (defparameter *quad-mesh* (wavefront-file-to-modelmesh #p"quad.obj"))
   (init-window :w 640 :h 480))
 ;; (list :vertices ;; v
 ;;       (length (modelmesh-vertices *bunny-mesh*))
@@ -83,7 +84,7 @@
                  (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
      (update-win))))
 
-;; full
+;; fill
 (time
  (let* ((vertices (modelmesh-vertices *bunny-mesh*))
         (tex-coords (modelmesh-tex-coords *bunny-mesh*))
@@ -297,3 +298,114 @@
             (let ((cliped-triangles (clip-triangle triangle)))
               (mapcar #'draw-triangle-wire-ndc cliped-triangles))))))
   (update-win))
+
+(defun frag-test (triangle v)
+  (declare (ignore triangle))
+  (let* ((v4 (vertex-coord v)))
+    (if (> (aref v4 1) 1.0)
+        #.(vec3-int-color (make-vec3 1.0 0.0 0.0))
+        #.(vec3-int-color (make-vec3 0.0 1.0 1.0)))))
+
+(defun phong-frag (triangle v color-vec eye-pos light-pos)
+  (declare (ignore triangle))
+  (let* ((view-vec (vec3-normalize (vec4->vec3
+                                    (vec4- eye-pos (vertex-coord v)))))
+         (normal (vec3-normalize
+                  (vec4->vec3 (vertex-normal v))))
+         (light-direction (vec3-normalize
+                           (vec4->vec3
+                            (vec4- (vertex-coord v) light-pos))))
+         ;; specular
+         (reflection (vec3-reflection light-direction normal))
+         (spec-factor (expt (max (vec3-dot view-vec reflection) 0.0)
+                            55))
+         ;; ambient
+         (ambient-factor 0.05)
+         ;; diffuse
+         (light-direction-neg (vec3- #.(make-vec3 0.0 0.0 0.0)
+                                     light-direction))
+         (diffuse-factor (max (vec3-dot normal light-direction-neg)
+                              0.0)))
+    ;; color blending
+    (vec3-int-color (vec3* color-vec (+ (* 3 spec-factor)
+                                        (* 5 ambient-factor)
+                                        diffuse-factor)))))
+
+(defun phong-frag-specular (triangle v color-vec eye-pos light-pos)
+  (declare (ignore triangle))
+  (let* ((view-vec (vec3-normalize (vec4->vec3
+                                    (vec4- eye-pos (vertex-coord v)))))
+         (normal (vec3-normalize
+                  (vec4->vec3 (vertex-normal v))))
+         (light-direction (vec3-normalize
+                           (vec4->vec3
+                            (vec4- (vertex-coord v) light-pos))))
+         ;; specular
+         (reflection (vec3-normalize (vec3-reflection light-direction normal)))
+         (spec-factor (expt (max (vec3-dot view-vec reflection) 0.0)
+                            55.0))
+         (specular (vec3* color-vec (* 10 spec-factor))))
+    (vec3-int-color specular)))
+
+(vec3-normalize (make-vec3 3.0 3.0 3.0))
+
+;; phong
+(time
+ (let* ((vertices (modelmesh-vertices *quad-mesh*))
+        (tex-coords (modelmesh-tex-coords *quad-mesh*))
+        (normals (modelmesh-normals *quad-mesh*))
+        (faces (modelmesh-faces *quad-mesh*))
+        ;; -------------------------
+        (trans-mat (3d-trans-mat -1.5 -1.5 -10.5))
+        ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
+        (scale-mat (3d-scale 3.0))
+        ;;(view-vec #(0.0 0.0 -1.0))
+        ;; camera at 0,0,0, no need to transform light-pos
+        (color-vec (make-vec3 0.55 0.17 0.17))
+        (light-pos (make-array 4 :element-type 'single-float
+                               :initial-contents '(0.5 0.0 -5.0 1.0)))
+        (eye-pos (make-array 4 :element-type 'single-float
+                             :initial-contents '(0.0 0.0 0.0 1.0))))
+   (progn
+     (clear 0 0 0)
+     (let* ((rot-mat (3d-rotate-y 5))
+            (trans-world (mul-44-44 trans-mat
+                                    (mul-44-44 rot-mat scale-mat)))
+            (world-norms (apply-transform normals trans-world))
+            (world-coords (apply-transform vertices trans-world))
+            (proj-coords (apply-transform world-coords *project-mat*))
+            (ndc-coords (vertices-ndc proj-coords))
+            (z-map (make-z-map)))
+       (dotimes (i (length faces))
+        (let* ((face (aref faces i))
+               (triangle (build-triangle-from-face
+                          face world-coords ndc-coords world-norms tex-coords))
+               (vertex-coord (vertex-coord (aref (triangle-vertices triangle) 0)))
+               (view-vec (vec4->vec3 ;; vertex -> eye
+                          (vec4- eye-pos vertex-coord)))
+               (a-normal (vec3-normalize (vec4->vec3
+                                          (vertex-normal
+                                           (aref (triangle-vertices triangle) 0)))))
+               (shader (lambda (triangle v)
+                         (phong-frag triangle v color-vec eye-pos light-pos))))
+          shader
+          (if (> (vec3-dot a-normal view-vec) 0)
+              (let ((cliped-triangles (clip-triangle triangle)))
+                (mapcar (lambda (triangle)
+                          (draw-triangle-phong triangle
+                                               shader
+                                               z-map
+                                               *sdl2-pixel-buffer*))
+                        cliped-triangles))))))
+     (update-win))))
+
+
+
+
+
+
+
+
+
+
+
