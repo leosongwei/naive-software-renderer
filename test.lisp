@@ -5,6 +5,7 @@
     (frustum-mat 20 (/ 4 3) 0.1 15))
   (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
   (defparameter *quad-mesh* (wavefront-file-to-modelmesh #p"quad.obj"))
+  (defparameter *texture0* (read-image-to-texture "./true.jpeg"))
   (init-window :w 640 :h 480))
 ;; (list :vertices ;; v
 ;;       (length (modelmesh-vertices *bunny-mesh*))
@@ -397,14 +398,5 @@
                                                *sdl2-pixel-buffer*))
                         cliped-triangles))))))
      (update-win))))
-
-
-
-
-
-
-
-
-
 
 

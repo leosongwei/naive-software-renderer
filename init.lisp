@@ -6,6 +6,43 @@
   (x0 :int) (y0 :int) (x1 :int) (y1 :int)
   (rgba :uint32) (pixels :pointer) (width :int))
 
+(cffi:defcfun "read_image" :pointer
+  (filepath :pointer) (x-ptr :pointer) (y-ptr :pointer))
+
+(cffi:defcfun "free_img" :pointer
+  (data-ptr :pointer))
+
+(defstruct texture
+  h w
+  r g b)
+
+(defun read-image-to-texture (image-path)
+  (cffi:with-foreign-string (path image-path)
+    (cffi:with-foreign-objects ((x-ptr :int 1)
+                                (y-ptr :int 1))
+      (let* ((data (read-image path x-ptr y-ptr))
+             (w (cffi:mem-ref x-ptr :int))
+             (h (cffi:mem-ref y-ptr :int))
+             (r-a (make-array `(,w ,h)
+                              :element-type 'single-float
+                              :initial-element 0.0))
+             (g-a (make-array `(,w ,h)
+                              :element-type 'single-float
+                              :initial-element 0.0))
+             (b-a (make-array `(,w ,h)
+                              :element-type 'single-float
+                              :initial-element 0.0)))
+        (dotimes (y h)
+          (dotimes (x w)
+            (let* ((pixel-offset (* 3 (+ x (* y w))))
+                   (r (cffi:mem-aref data :unsigned-char pixel-offset))
+                   (g (cffi:mem-aref data :unsigned-char (+ 1 pixel-offset)))
+                   (b (cffi:mem-aref data :unsigned-char (+ 2 pixel-offset))))
+              (setf (aref r-a x y) (float (/ r 255)))
+              (setf (aref g-a x y) (float (/ g 255)))
+              (setf (aref b-a x y) (float (/ b 255))))))
+        (make-texture :h h :w w :r r-a :g g-a :b b-a)))))
+
 (defun get-sdl2-surface-pixels (sdl2-surface)
   (sdl-surface-pixels (sdl2-ffi::sdl-surface-ptr sdl2-surface)))
 
