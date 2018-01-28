@@ -270,7 +270,9 @@
                              (delta-v (dvertex v1p v2p length))
                              (x x1p)
                              (zi zi1p)
-                             (dzi (float (/ (- zi2p zi1p) length))))
+                             (dzi (if (= 0.0 (- zi2p zi1p))
+                                      0.0
+                                      (float (/ (- zi2p zi1p) length)))))
                         (declare (type (unsigned-byte 16) length x)
                                  (type single-float zi dzi))
                         (dotimes (j length)
@@ -313,7 +315,9 @@
                              (delta-v (dvertex v1p v2p length))
                              (x x1p)
                              (zi zi1p)
-                             (dzi (float (/ (- zi2p zi1p) length))))
+                             (dzi (if (= 0.0 (- zi2p zi1p))
+                                      0.0
+                                      (float (/ (- zi2p zi1p) length)))))
                         (declare (type (unsigned-byte 16) length x)
                                  (type single-float zi dzi))
                         (dotimes (j length)

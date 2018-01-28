@@ -356,19 +356,18 @@
         (normals (modelmesh-normals *quad-mesh*))
         (faces (modelmesh-faces *quad-mesh*))
         ;; -------------------------
-        (trans-mat (3d-trans-mat -1.5 -1.5 -10.5))
+        (trans-mat (3d-trans-mat -1.5 -1.5 -10.0))
         ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
         (scale-mat (3d-scale 3.0))
         ;;(view-vec #(0.0 0.0 -1.0))
         ;; camera at 0,0,0, no need to transform light-pos
         (color-vec (make-vec3 0.55 0.17 0.17))
-        (light-pos (make-array 4 :element-type 'single-float
-                               :initial-contents '(0.5 0.0 -5.0 1.0)))
+        (light-pos (make-vec4 0.0 0.0 -5.0 1.0))
         (eye-pos (make-array 4 :element-type 'single-float
                              :initial-contents '(0.0 0.0 0.0 1.0))))
    (progn
      (clear 0 0 0)
-     (let* ((rot-mat (3d-rotate-y 5))
+     (let* ((rot-mat (3d-rotate-y 0))
             (trans-world (mul-44-44 trans-mat
                                     (mul-44-44 rot-mat scale-mat)))
             (world-norms (apply-transform normals trans-world))

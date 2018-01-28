@@ -452,6 +452,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 (defmacro grad (a b len) ;; a->b, length
   `(/ (- ,b ,a) ,len))
 
+(declaim (inline dvertex))
+
 (defun dvertex (v1 v2 length)
   "make a vertex gradient for shading"
   (if (= length 0)
@@ -472,7 +474,9 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                                (zi2 (float (/ 1.0 (aref p2 2)))))
                           (make-vec4 (float (grad x1 x2 length))
                                      (float (grad y1 y2 length))
-                                     (float (/ 1.0 (grad zi1 zi2 length)))
+                                     (if (= 0.0 (- zi1 zi2))
+                                         0.0
+                                         (/ 1.0 (grad zi1 zi2 length)))
                                      0.0))
                    :normal (let* ((p1 (vertex-normal v1))
                                   (p2 (vertex-normal v2))
@@ -505,13 +509,15 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   ;; ndc
   (let* ((p1 (vertex-ndc v1))
          (p2 (vertex-ndc v2))
-         (x1 (aref p1 0)) (y1 (aref p1 1))
-         (zi1 (float (/ 1.0 (aref p1 2))))
-         (x2 (aref p2 0)) (y2 (aref p2 1))
-         (zi2 (float (/ 1.0 (aref p2 2)))))
+         (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
+         (x2 (aref p2 0)) (y2 (aref p2 1)) (z2 (aref p2 2)))
     (setf (aref p1 0) (+ x1 x2))
     (setf (aref p1 1) (+ y1 y2))
-    (setf (aref p1 2) (float (/ 1.0 (+ zi1 zi2)))))
+    (if (= z2 0.0)
+        nil
+        (let ((zi1 (float (/ 1.0 z1)))
+              (zi2 (float (/ 1.0 z2))))
+          (setf (aref p1 2) (float (/ 1.0 (+ zi1 zi2)))))))
   ;; normal
   (let* ((p1 (vertex-normal v1))
          (p2 (vertex-normal v2))
