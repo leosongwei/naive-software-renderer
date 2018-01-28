@@ -13,8 +13,14 @@
   (data-ptr :pointer))
 
 (defstruct texture
-  h w
-  r g b)
+  (h 0 :type integer)
+  (w 0 :type integer)
+  (r (make-array '(1 1) :element-type 'single-float :initial-element 0.0)
+     :type (simple-array single-float (* *)))
+  (g (make-array '(1 1) :element-type 'single-float :initial-element 0.0)
+     :type (simple-array single-float (* *)))
+  (b (make-array '(1 1) :element-type 'single-float :initial-element 0.0)
+     :type (simple-array single-float (* *))))
 
 (defun read-image-to-texture (image-path)
   (cffi:with-foreign-string (path image-path)
@@ -41,6 +47,7 @@
               (setf (aref r-a x y) (float (/ r 255)))
               (setf (aref g-a x y) (float (/ g 255)))
               (setf (aref b-a x y) (float (/ b 255))))))
+        (free-img data)
         (make-texture :h h :w w :r r-a :g g-a :b b-a)))))
 
 (defun get-sdl2-surface-pixels (sdl2-surface)

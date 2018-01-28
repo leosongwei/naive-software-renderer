@@ -328,3 +328,13 @@
                             (vertex+f vertex delta-v)
                             (incf zi dzi)
                             (incf x))))))))))))))
+
+(defun sample-texture (vec2 texture)
+  (declare (type (simple-array single-float (2)) vec2))
+  (let* ((w (texture-w texture))
+         (h (texture-h texture))
+         (x (floor (* (1- w) (mod (aref vec2 0) 1.0))))
+         (y (floor (* (1- h) (mod (aref vec2 1) 1.0)))))
+    (make-vec3 (aref (texture-r texture) x y)
+               (aref (texture-g texture) x y)
+               (aref (texture-b texture) x y))))

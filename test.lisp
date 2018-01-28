@@ -307,7 +307,7 @@
         #.(vec3-int-color (make-vec3 1.0 0.0 0.0))
         #.(vec3-int-color (make-vec3 0.0 1.0 1.0)))))
 
-(defun phong-frag (triangle v color-vec eye-pos light-pos)
+(defun phong-frag (triangle v eye-pos light-pos)
   (declare (ignore triangle))
   (let* ((view-vec (vec3-normalize (vec4->vec3
                                     (vec4- eye-pos (vertex-coord v)))))
@@ -326,7 +326,8 @@
          (light-direction-neg (vec3- #.(make-vec3 0.0 0.0 0.0)
                                      light-direction))
          (diffuse-factor (max (vec3-dot normal light-direction-neg)
-                              0.0)))
+                              0.0))
+         (color-vec (sample-texture (vertex-tex-coord v) *texture0*)))
     ;; color blending
     (vec3-int-color (vec3* color-vec (+ (* 3 spec-factor)
                                         (* 5 ambient-factor)
@@ -350,7 +351,10 @@
 
 (vec3-normalize (make-vec3 3.0 3.0 3.0))
 
-;; phong
+;; ------------------------------------------------------------------------
+;; phong model:
+
+;; quad
 (time
  (let* ((vertices (modelmesh-vertices *quad-mesh*))
         (tex-coords (modelmesh-tex-coords *quad-mesh*))
@@ -362,7 +366,6 @@
         (scale-mat (3d-scale 3.0))
         ;;(view-vec #(0.0 0.0 -1.0))
         ;; camera at 0,0,0, no need to transform light-pos
-        (color-vec (make-vec3 0.55 0.17 0.17))
         (light-pos (make-vec4 0.0 0.0 -5.0 1.0))
         (eye-pos (make-array 4 :element-type 'single-float
                              :initial-contents '(0.0 0.0 0.0 1.0))))
@@ -387,7 +390,7 @@
                                           (vertex-normal
                                            (aref (triangle-vertices triangle) 0)))))
                (shader (lambda (triangle v)
-                         (phong-frag triangle v color-vec eye-pos light-pos))))
+                         (phong-frag triangle v eye-pos light-pos))))
           shader
           (if (> (vec3-dot a-normal view-vec) 0)
               (let ((cliped-triangles (clip-triangle triangle)))
@@ -399,4 +402,50 @@
                         cliped-triangles))))))
      (update-win))))
 
-
+;; bunny
+(time
+ (let* ((vertices (modelmesh-vertices *bunny-mesh*))
+        (tex-coords (modelmesh-tex-coords *bunny-mesh*))
+        (normals (modelmesh-normals *bunny-mesh*))
+        (faces (modelmesh-faces *bunny-mesh*))
+        ;; -------------------------
+        (trans-mat (3d-trans-mat 0.0 -1.0 -10.0))
+        ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
+        (scale-mat (3d-scale 5.0))
+        ;;(view-vec #(0.0 0.0 -1.0))
+        ;; camera at 0,0,0, no need to transform light-pos
+        (light-pos (make-vec4 5.0 5.0 -5.0 1.0))
+        (eye-pos (make-array 4 :element-type 'single-float
+                             :initial-contents '(0.0 0.0 0.0 1.0))))
+   (progn
+     (clear 0 0 0)
+     (let* ((rot-mat (3d-rotate-y 0))
+            (trans-world (mul-44-44 trans-mat
+                                    (mul-44-44 rot-mat scale-mat)))
+            (world-norms (apply-transform normals trans-world))
+            (world-coords (apply-transform vertices trans-world))
+            (proj-coords (apply-transform world-coords *project-mat*))
+            (ndc-coords (vertices-ndc proj-coords))
+            (z-map (make-z-map)))
+       (dotimes (i (length faces))
+        (let* ((face (aref faces i))
+               (triangle (build-triangle-from-face
+                          face world-coords ndc-coords world-norms tex-coords))
+               (vertex-coord (vertex-coord (aref (triangle-vertices triangle) 0)))
+               (view-vec (vec4->vec3 ;; vertex -> eye
+                          (vec4- eye-pos vertex-coord)))
+               (a-normal (vec3-normalize (vec4->vec3
+                                          (vertex-normal
+                                           (aref (triangle-vertices triangle) 0)))))
+               (shader (lambda (triangle v)
+                         (phong-frag triangle v eye-pos light-pos))))
+          shader
+          (if (> (vec3-dot a-normal view-vec) 0)
+              (let ((cliped-triangles (clip-triangle triangle)))
+                (mapcar (lambda (triangle)
+                          (draw-triangle-phong triangle
+                                               shader
+                                               z-map
+                                               *sdl2-pixel-buffer*))
+                        cliped-triangles))))))
+     (update-win))))
