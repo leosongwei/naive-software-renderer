@@ -5,6 +5,8 @@ Stay simple, stay naive. (Made with lisp)
 
 <img src="bunny.gif" />
 
+<img src="bunny_texture.png" />
+
 Require:
 
 * SBCL, QuickLisp
