@@ -67,7 +67,7 @@
   (sdl2:blit-surface *sdl2-surface* nil (sdl2:get-window-surface *sdl2-window*) nil)
   (sdl2:render-present (sdl2:get-renderer *sdl2-window*)))
 
-(defun init-window (&key (title "New Game") (w 640) (h 480))
+(defun init-window (&key (title "Naive Software Renderer!!!") (w 640) (h 480))
   (setf *w* w) (setf *h* h)
   (sdl2:init :everything)
   (setf *pixel-buffer* (make-array `(,h ,w) :element-type '(unsigned-byte 32)))
