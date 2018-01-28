@@ -5,7 +5,7 @@ Stay simple, stay naive. (Made with lisp)
 
 <img src="bunny.gif" />
 
-<img src="bunny_texture.png" />
+<img src="bunny_china.jpg" />
 
 Require:
 
@@ -16,4 +16,6 @@ Require:
 How to:
 
 * `cd` into `cutils`, `$ cmake CMakeLists.txt`, `make`
-* `cd` into source code directory, `$ sbcl --load example.lisp`
+* `cd` into source code directory
+* Rotating flat shaded bunny: `$ sbcl --load example.lisp`
+* Phong shading bunny: `$sbcl --load example_phong.lisp`
