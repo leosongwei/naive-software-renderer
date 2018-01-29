@@ -85,21 +85,14 @@
                         cliped-triangles))))))
     (update-win))))
 
-(defun split-work (num pieces)
-  ;; return: (cons start, num)
-  (let ((lst nil)
-        (every-piece (floor (/ num pieces)))
-        (remain num)
-        (index 0))
-    (if (= every-piece 0)
-        (push (cons 0 remain) lst)
-        (progn
-          (dotimes (i (1- pieces))
-            (push (cons index every-piece) lst)
-            (decf remain every-piece)
-            (incf index every-piece))
-          (push (cons index remain) lst)))
-    lst))
+(format t "(Press Enter to continue)~%")
+(read-line)
+
+(defun split-work (array n)
+  (let ((work-split (make-list n :initial-element nil)))
+    (dotimes (i (length array))
+      (push (aref array i) (nth (mod i n) work-split)))
+    work-split))
 
 (time
  (let* ((vertices (modelmesh-vertices *bunny-mesh*))
@@ -116,9 +109,9 @@
         (eye-pos (make-array 4 :element-type 'single-float
                              :initial-contents '(0.0 0.0 0.0 1.0)))
         (*project-mat* (frustum-mat 5 (/ 4 3) 0.1 15)))
-   (progn
+   (dotimes (angle 360)
      (clear 0 0 0)
-     (let* ((rot-mat (3d-rotate-y 0))
+     (let* ((rot-mat (3d-rotate-y angle))
             (trans-world (mul-44-44 trans-mat
                                     (mul-44-44 rot-mat scale-mat)))
             (world-norms (apply-transform normals trans-world))
@@ -127,12 +120,10 @@
             (ndc-coords (vertices-ndc proj-coords))
             (z-map (make-z-map)))
        (let* ((renderer-func
-               (lambda (start amount)
+               (lambda (work)
                  (let ((draw-count 0))
-                   (dotimes (ia amount)
-                     (let* ((i (+ start ia))
-                            (face (aref faces i))
-                            (triangle (build-triangle-from-face
+                   (dolist (face work)
+                     (let* ((triangle (build-triangle-from-face
                                        face
                                        world-coords
                                        ndc-coords
@@ -161,14 +152,13 @@
                                                             *sdl2-pixel-buffer*))
                                      cliped-triangles)))))
                    draw-count)))
-              (thread-count 4)
+              (thread-count (get-cpu-count))
               (threads (mapcar (lambda (work)
                                  (sb-thread:make-thread
                                   (lambda ()
-                                    (funcall renderer-func (car work) (cdr work)))))
-                               (split-work (length faces) thread-count))))
-         (princ (mapcar (lambda (thread)
-                          (sb-thread:join-thread
-                           thread
-                           :default 'x)) threads)))))
-   (update-win)))
+                                    (funcall renderer-func work))))
+                               (split-work faces thread-count))))
+         (dolist (it threads)
+           (sb-thread:join-thread it))))
+     (update-win))))
+

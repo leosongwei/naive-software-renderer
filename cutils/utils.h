@@ -1,4 +1,5 @@
 void* SDL_Surface_pixels (SDL_Surface* surface);
+int get_cpu_count();
 
 int dot_offset(int x, int y, int width);
 

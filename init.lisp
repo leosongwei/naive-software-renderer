@@ -1,4 +1,7 @@
 (cffi:load-foreign-library #p"./cutils/libcutils.so")
+
+(cffi:defcfun "get_cpu_count" :int)
+
 (cffi:defcfun "SDL_Surface_pixels" :pointer
   (sdl2-surface-prt :pointer))
 
