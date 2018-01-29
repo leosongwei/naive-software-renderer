@@ -75,7 +75,7 @@
   (multiple-value-bind (vertices tex-coords normals faces)
       (read-wavefront-obj-file file-path)
     (make-model-from-wave-front vertices tex-coords normals faces)))
-(wavefront-file-to-modelmesh #p"test.obj")
+;;(wavefront-file-to-modelmesh #p"test.obj")
 ;; #S(MODELMESH
 ;;    :VERTICES #(#(0.123 0.234 0.345 1.0) #(0.123 0.234 0.345 1.0)
 ;;                #(0.123 0.234 0.345 1.0) #(0.123 0.234 0.345 1.0)
