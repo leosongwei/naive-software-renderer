@@ -1,3 +1,5 @@
+(in-package :naive-software-renderer)
+
 (defun make-dynamic-string ()
   (make-array 0 :adjustable t
               :fill-pointer 0

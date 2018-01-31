@@ -1,6 +1,13 @@
 ;; flat shading
 
-(load "main.lisp")
+;;(load "main.lisp")
+(in-package :cl-user)
+(push #p"./" asdf:*central-registry*)
+
+(require :naive-software-renderer)
+(defpackage :naive-software-renderer-example
+  (:use :cl :cl-user :naive-software-renderer))
+(in-package :naive-software-renderer-example)
 
 (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
 
@@ -70,4 +77,4 @@
 
 (destroy-window)
 
-(exit)
+(sb-ext:exit)

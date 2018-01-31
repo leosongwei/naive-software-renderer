@@ -1,3 +1,5 @@
+(in-package :naive-software-renderer)
+
 ;; (defstruct module
 ;;   vertex
 ;;   tex-coord

@@ -1,3 +1,5 @@
+(in-package :naive-software-renderer)
+
 (cffi:load-foreign-library #p"./cutils/libcutils.so")
 
 (cffi:defcfun "get_cpu_count" :int)

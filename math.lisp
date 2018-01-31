@@ -1,4 +1,6 @@
-(declaim (optimize (speed 3) (safety 0)))
+(in-package :naive-software-renderer)
+
+;;(declaim (optimize (speed 3) (safety 0)))
 
 ;; vertex
 ;;   3f: model space coord
@@ -7,19 +9,21 @@
 ;;   2f: texture coord
 
 (defun copy-float-array (array)
+  (declare (type (simple-array single-float (*)) array))
   (let ((a (make-array (length array) :element-type 'single-float)))
     (dotimes (i (length array))
       (setf (aref a i) (aref array i)))
     a))
 
-(defstruct (vertex (:copier copy-vertex))
+;;(defstruct (vertex (:copier copy-vertex))
+(defstruct vertex
   (coord (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
   (ndc (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
   (normal (make-array 4 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (4)))
   (color (make-array 3 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (3)))
   (tex-coord (make-array 2 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (2))))
 
-(defun copy-vertex (vertex)
+(defun cp-vertex (vertex)
   (make-vertex :coord (copy-float-array (vertex-coord vertex))
                :ndc (copy-float-array (vertex-ndc vertex))
                :normal (copy-float-array (vertex-normal vertex))
@@ -31,21 +35,22 @@
 ;;   (setf (aref v1-coord 0) 6.6)
 ;;   v2)
 
-(defstruct (triangle (:copier copy-triangle))
+;;(defstruct (triangle (:copier copy-triangle))
+(defstruct triangle
   (vertices (make-array 3 :element-type 'vertex
                         :initial-contents `(,(make-vertex)
                                              ,(make-vertex)
                                              ,(make-vertex)))
             :type (simple-vector 3)))
 
-(defun copy-triangle (triangle)
+(defun cp-triangle (triangle)
   (let ((vertices (triangle-vertices triangle)))
     (make-triangle :vertices
                    (make-array 3 :element-type 'vertex
                                :initial-contents
-                               `(,(copy-vertex (aref vertices 0))
-                                  ,(copy-vertex (aref vertices 1))
-                                  ,(copy-vertex (aref vertices 2)))))))
+                               `(,(cp-vertex (aref vertices 0))
+                                  ,(cp-vertex (aref vertices 1))
+                                  ,(cp-vertex (aref vertices 2)))))))
 
 (defun build-triangle (v1 v2 v3)
   (make-triangle :vertices (make-array 3 :element-type 'vertex
@@ -452,12 +457,12 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 (defmacro grad (a b len) ;; a->b, length
   `(/ (- ,b ,a) ,len))
 
-(declaim (inline dvertex))
+;;(declaim (inline dvertex))
 
 (defun dvertex (v1 v2 length)
   "make a vertex gradient for shading"
   (if (= length 0)
-      (copy-vertex v1)
+      (cp-vertex v1)
       (make-vertex :coord (let* ((p1 (vertex-coord v1))
                                  (p2 (vertex-coord v2))
                                  (x1 (aref p1 0)) (y1 (aref p1 1)) (z1 (aref p1 2))
@@ -493,7 +498,7 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                                 (make-vec2 (float (grad x1 x2 length))
                                            (float (grad y1 y2 length)))))))
 
-(declaim (inline vertex+f))
+;;(declaim (inline vertex+f))
 
 (defun vertex+f (v1 v2)
   (declare (type vertex v1 v2) (optimize (speed 3)))
@@ -538,6 +543,7 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   "transform a vec4 to NDC(Normalized Device Coordinate)
    x,y [-1.0, +1.0]
    z   [0.0, 1.0]"
+  (declare (type (simple-array single-float (4))))
   (let* ((x (aref vec4 0)) (y (aref vec4 1)) (z (aref vec4 2))
          (w (aref vec4 3))
          (nx (/ x w)) (ny (/ y w)) (nz (/ z w)))

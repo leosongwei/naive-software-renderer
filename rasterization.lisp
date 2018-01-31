@@ -1,3 +1,5 @@
+(in-package :naive-software-renderer)
+
 (defun ndc-xy (ndc)
   (let* ((x (aref ndc 0))
          (y (aref ndc 1)))
@@ -54,8 +56,7 @@
             z)))
 
 (defun draw-triangle-flat (triangle color z-map pixels)
-  (declare (optimize (speed 3) (safety 0))
-           (type (simple-array single-float (* *)))
+  (declare (type (simple-array single-float (* *)))
            (type (unsigned-byte 32) color))
   (block :draw
     (let* ((vertices (triangle-vertices triangle))
@@ -65,10 +66,13 @@
       (mvb-let* ((x0 y0 z0 (ndc-xyz v0-ndc))
                  (x1 y1 z1 (ndc-xyz v1-ndc))
                  (x2 y2 z2 (ndc-xyz v2-ndc)))
+                (declare (type integer x0 y0 x1 y1 x2 y2)
+                         (type single-float z0 z1 z2))
         (if (> y0 y1) (progn (swap x0 x1) (swap y0 y1) (swap z0 z1)))
         (if (> y0 y2) (progn (swap x0 x2) (swap y0 y2) (swap z0 z2)))
         (if (> y1 y2) (progn (swap x1 x2) (swap y1 y2) (swap z1 z2)))
-        (if (or (= y0 y2) (= x0 x1 x2)) (return-from :draw))
+        (if (or (= y0 y2)
+                (= x0 x1 x2)) (return-from :draw))
         (let* ((height-total (- y2 y0))
                (zi0 (float (/ 1.0 z0)))
                (zi1 (float (/ 1.0 z1)))
@@ -222,8 +226,7 @@
    same as draw-triangle-flat
    shader: (shader triangle vertex-at-pixel) => color(int32, rgba)
            the shader function should not alter the triangle and vertex"
-  (declare (optimize (speed 3) (safety 0))
-           (type (simple-array single-float (* *))))
+  (declare (type (simple-array single-float (* *))))
   (block :draw
     (let* ((vertices (triangle-vertices triangle))
            (v0 (aref vertices 0))

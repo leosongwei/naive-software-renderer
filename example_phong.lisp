@@ -1,5 +1,13 @@
+(in-package :cl-user)
+(push #p"./" asdf:*central-registry*)
+
+(require :naive-software-renderer)
+(defpackage :naive-software-renderer-example
+  (:use :cl :cl-user :naive-software-renderer))
+(in-package :naive-software-renderer-example)
+
+
 (progn
-  (load "main.lisp")
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
     (frustum-mat 20 (/ 4 3) 0.1 15))

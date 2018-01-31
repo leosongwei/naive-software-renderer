@@ -1,3 +1,5 @@
+(in-package :naive-software-renderer)
+
 (defun apply-transform (fv4-array trans-mat)
   (let* ((length (length fv4-array))
          (a (make-array length
