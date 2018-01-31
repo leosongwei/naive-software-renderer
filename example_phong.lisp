@@ -1,11 +1,11 @@
-(in-package :cl-user)
-(push #p"./" asdf:*central-registry*)
+(progn
+  (in-package :cl-user)
+  (push #p"./" asdf:*central-registry*)
+  (require :naive-software-renderer))
 
-(require :naive-software-renderer)
 (defpackage :naive-software-renderer-example
   (:use :cl :cl-user :naive-software-renderer))
 (in-package :naive-software-renderer-example)
-
 
 (progn
   (defparameter *eye* (make-array 3 :element-type 'single-float))
@@ -16,7 +16,10 @@
   (init-window))
 
 (defun phong-frag (triangle v eye-pos light-pos)
-  (declare (ignore triangle))
+  (declare (optimize (speed 3))
+           (ignore triangle)
+           (type vertex v)
+           (type (simple-array single-float (4)) eye-pos light-pos))
   (let* ((view-vec (vec3-normalize (vec4->vec3
                                     (vec4- eye-pos (vertex-coord v)))))
          (normal (vec3-normalize
