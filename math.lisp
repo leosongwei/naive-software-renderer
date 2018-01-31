@@ -120,10 +120,14 @@
     vec))
 
 (defun mul-44-v4 (a v)
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (4 4)) a)
+           (type (simple-array single-float (4)) v))
   (let ((vec (make-array '(4) :element-type 'single-float)))
     (dotimes (r 4)
       (setf (aref vec r)
             (let ((sum 0.0))
+              (declare (type single-float sum))
               (dotimes (j 4)
                 (incf sum (* (aref a r j) (aref v j))))
               sum)))
@@ -343,6 +347,9 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
      (* (aref vec1 2) (aref vec2 2))))
 
 (defun vec3-clamp (vec3 &optional (lb 0.0) (ub 1.0))
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (3)) vec3)
+           (type single-float lb ub))
   (make-array 3 :element-type 'single-float
               :initial-contents
               `(,(max lb (min (aref vec3 0) ub))
@@ -427,6 +434,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   `(itplt-m + * - ,a ,b ,pt))
 
 (defun interpolate-vertex (v1 v2 pt)
+  (declare (optimize (speed 3))
+           (type single-float pt))
   (make-vertex :coord (let ((c1 (vertex-coord v1))
                             (c2 (vertex-coord v2)))
                         (vec4+ c1 (vec4* (vec4- c2 c1) pt)))
@@ -461,6 +470,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 
 (defun dvertex (v1 v2 length)
   "make a vertex gradient for shading"
+  (declare (optimize (speed 3))
+           (type (unsigned-byte 16) length))
   (if (= length 0)
       (cp-vertex v1)
       (make-vertex :coord (let* ((p1 (vertex-coord v1))
