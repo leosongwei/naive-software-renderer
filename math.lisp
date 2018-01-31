@@ -23,6 +23,8 @@
   (color (make-array 3 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (3)))
   (tex-coord (make-array 2 :element-type 'single-float) :type (SIMPLE-ARRAY SINGLE-FLOAT (2))))
 
+(defparameter +empty-vertex+ (make-vertex))
+
 (defun cp-vertex (vertex)
   (make-vertex :coord (copy-float-array (vertex-coord vertex))
                :ndc (copy-float-array (vertex-ndc vertex))
@@ -561,3 +563,21 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
     (make-array 4 :element-type 'single-float
                 :initial-contents
                 `(,nx ,ny ,nz 1.0))))
+
+(defun triangle-normal3 (triangle)
+  (let* ((vertices (triangle-vertices triangle))
+         (v0 (vertex-coord (aref vertices 0)))
+         (v1 (vertex-coord (aref vertices 1)))
+         (v2 (vertex-coord (aref vertices 2)))
+         (x0 (aref v0 0)) (y0 (aref v0 1)) (z0 (aref v0 2))
+         (x1 (aref v1 0)) (y1 (aref v1 1)) (z1 (aref v1 2))
+         (x2 (aref v2 0)) (y2 (aref v2 1)) (z2 (aref v2 2))
+         (a1 (- x1 x0)) (a2 (- y1 y0)) (a3 (- z1 z0))
+         (b1 (- x2 x0)) (b2 (- y2 y0)) (b3 (- z2 z0))
+         (vec (make-vec3 (- (* a2 b3)
+                            (* a3 b2))
+                         (- (* a3 b1)
+                            (* a1 b3))
+                         (- (* a1 b2)
+                            (* a2 b1)))))
+    (vec3-normalize vec)))

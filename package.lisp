@@ -39,6 +39,7 @@
            :*SDL2-PIXEL-BUFFER*
            :triangle
            :triangle-vertices
+           :triangle-normal3
            :modelmesh
            :modelmesh-vertices
            :modelmesh-tex-coords

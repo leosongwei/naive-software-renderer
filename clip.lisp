@@ -1,7 +1,5 @@
 (in-package :naive-software-renderer)
 
-;(defconstant +empty-vertex+ (make-vertex))
-
 (defun clip-line (v1 v2 axis plane direction)
   "CLIP-LINE
    vertices: v1->v2

@@ -80,13 +80,10 @@
                (vertex-coord (vertex-coord (aref (triangle-vertices triangle) 0)))
                (view-vec (vec4->vec3 ;; vertex -> eye
                           (vec4- eye-pos vertex-coord)))
-               (a-normal (vec3-normalize (vec4->vec3
-                                          (vertex-normal
-                                           (aref (triangle-vertices triangle) 0)))))
                (shader (lambda (triangle v)
                          (phong-frag triangle v eye-pos light-pos))))
           shader
-          (if (> (vec3-dot a-normal view-vec) 0)
+          (if (> (vec3-dot (triangle-normal3 triangle) view-vec) 0)
               (let ((cliped-triangles (clip-triangle triangle)))
                 (mapcar (lambda (triangle)
                           (draw-triangle-phong triangle
