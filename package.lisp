@@ -74,6 +74,9 @@
 (defparameter *sdl2-window* nil)
 (defparameter *sdl2-renderer* nil)
 
+;; this declaim actually slow down the program???
+(declaim (type (unsigned-byte 16) *w* *h*))
+
 (defparameter *w* 640)
 (defparameter *h* 480)
 

@@ -17,6 +17,7 @@
 
 (init-window :w 640 :h 480)
 
+(time
 (let* ((vertices (modelmesh-vertices *bunny-mesh*))
        (tex-coords (modelmesh-tex-coords *bunny-mesh*))
        (normals (modelmesh-normals *bunny-mesh*))
@@ -73,7 +74,7 @@
           (if (> (vec3-dot a-normal view-vec) 0)
               (let ((cliped-triangles (clip-triangle triangle)))
                 (mapcar draw-func cliped-triangles))))))
-    (update-win)))
+    (update-win))))
 
 (destroy-window)
 
