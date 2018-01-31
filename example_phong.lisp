@@ -13,7 +13,7 @@
     (frustum-mat 20 (/ 4 3) 0.1 15))
   (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny_high.obj"))
   (defparameter *texture0* (read-image-to-texture "./true.jpeg"))
-  (init-window :w 1024 :h 768))
+  (init-window))
 
 (defun phong-frag (triangle v eye-pos light-pos)
   (declare (ignore triangle))

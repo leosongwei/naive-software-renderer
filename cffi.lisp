@@ -1,6 +1,10 @@
 (in-package :naive-software-renderer)
 
-(cffi:load-foreign-library #p"./cutils/libcutils.so")
+(cffi:load-foreign-library
+ (pathname
+  (concatenate 'string
+               (namestring (asdf:system-source-directory :naive-software-renderer))
+               "cutils/libcutils.so")))
 
 (cffi:defcfun "get_cpu_count" :int)
 
