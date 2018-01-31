@@ -24,7 +24,4 @@
             :depends-on ("package" "algorithm")
             :components ((:file "cffi")
                          (:file "rasterization"))))
-  :depends-on (:cffi
-                :sdl2
-                :cl-autowrap
-                :parse-number))
+  :depends-on (:cffi :sdl2 :parse-number))

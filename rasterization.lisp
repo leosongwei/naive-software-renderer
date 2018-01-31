@@ -111,8 +111,7 @@
                             (if (< z z-map-depth)
                                 (progn
                                   (setf (aref z-map x y) z)
-                                  (setf (autowrap:c-aref pixels (dot-offset x y *w*)
-                                                         :unsigned-int)
+                                  (setf (cffi:mem-aref pixels :unsigned-int (dot-offset x y *w*))
                                         color)))
                             (incf zi dzi)
                             (incf x)))))))))
@@ -149,8 +148,7 @@
                             (if (< z z-map-depth)
                                 (progn
                                   (setf (aref z-map x y) z)
-                                  (setf (autowrap:c-aref pixels (dot-offset x y *w*)
-                                                         :unsigned-int)
+                                  (setf (cffi:mem-aref pixels :unsigned-int (dot-offset x y *w*))
                                         color)))
                             (incf zi dzi)
                             (incf x))))))))))))))
@@ -287,8 +285,7 @@
                             (if (< z z-map-depth)
                                 (progn
                                   (setf (aref z-map x y) z)
-                                  (setf (autowrap:c-aref pixels (dot-offset x y *w*)
-                                                         :unsigned-int)
+                                  (setf (cffi:mem-aref pixels :unsigned-int (dot-offset x y *w*))
                                         (funcall shader triangle vertex))))
                             (vertex+f vertex delta-v)
                             (incf zi dzi)
@@ -330,8 +327,7 @@
                             (if (< z z-map-depth)
                                 (progn
                                   (setf (aref z-map x y) z)
-                                  (setf (autowrap:c-aref pixels (dot-offset x y *w*)
-                                                         :unsigned-int)
+                                  (setf (cffi:mem-aref pixels :unsigned-int (dot-offset x y *w*))
                                         (funcall shader triangle vertex))))
                             (vertex+f vertex delta-v)
                             (incf zi dzi)
@@ -346,3 +342,4 @@
     (make-vec3 (aref (texture-r texture) x y)
                (aref (texture-g texture) x y)
                (aref (texture-b texture) x y))))
+
