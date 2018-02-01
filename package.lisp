@@ -14,6 +14,7 @@
 
 (defpackage :naive-software-renderer
   (:use :cl :cl-user)
+  (:nicknames :naive)
   (:export :init-window
            :destroy-window
            :update-win
@@ -24,6 +25,7 @@
            :make-vec3
            :make-vec4
            :frustum-mat
+           :make-vertex
            :vertex
            :vertex-coord
            :vertex-normal
@@ -37,6 +39,9 @@
            :*w*
            :*h*
            :*SDL2-PIXEL-BUFFER*
+           :*sdl2-renderer*
+           :make-triangle
+           :build-triangle
            :triangle
            :triangle-vertices
            :triangle-normal3
@@ -58,6 +63,7 @@
            :vec3+ :vec3- :vec3* :vec3/
            :vec4+ :vec4- :vec4* :vec4/ :vec4-ndc
            :vec3-int-color :vec3-dot :vec3-clamp :vec3-normalize :vec3-reflection
+           :map-color
            :clip-triangle
            :clip-line
            :draw-triangle-wire-ndc
