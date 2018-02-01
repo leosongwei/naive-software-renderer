@@ -11,8 +11,10 @@
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
     (frustum-mat 20 (/ 4 3) 0.1 15))
-  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny_high.obj"))
+  ;;(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny_high.obj"))
+  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
   (defparameter *texture0* (read-image-to-texture "./true.jpeg"))
+  (defparameter *scale* 1.6)
   (init-window))
 
 (defun phong-frag (triangle v eye-pos light-pos)
@@ -56,7 +58,7 @@
        ;; -------------------------
        (trans-mat (3d-trans-mat 0.05 -0.35 -10.0))
        ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
-       (scale-mat (3d-scale 5.0))
+       (scale-mat (3d-scale *scale*))
        ;;(view-vec #(0.0 0.0 -1.0))
        ;; camera at 0,0,0, no need to transform light-pos
        (light-pos (make-vec4 5.0 5.0 -5.0 1.0))
@@ -110,7 +112,7 @@
         ;; -------------------------
         (trans-mat (3d-trans-mat 0.05 -0.35 -10.0))
         ;;(trans-mat (3d-trans-mat 1.8 -2.3 -10.0))
-        (scale-mat (3d-scale 5.0))
+        (scale-mat (3d-scale *scale*))
         ;;(view-vec #(0.0 0.0 -1.0))
         ;; camera at 0,0,0, no need to transform light-pos
         (light-pos (make-vec4 5.0 5.0 -5.0 1.0))
@@ -142,11 +144,7 @@
                               (aref (triangle-vertices triangle) 0)))
                             (view-vec (vec4->vec3 ;; vertex -> eye
                                        (vec4- eye-pos vertex-coord)))
-                            (a-normal
-                             (vec3-normalize
-                              (vec4->vec3
-                               (vertex-normal
-                                (aref (triangle-vertices triangle) 0)))))
+                            (a-normal (triangle-normal3 triangle))
                             (shader (lambda (triangle v)
                                       (phong-frag triangle v eye-pos light-pos))))
                        shader

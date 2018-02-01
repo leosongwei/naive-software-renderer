@@ -50,9 +50,7 @@
                (vertex-coord (vertex-coord (aref (triangle-vertices triangle) 0)))
                (view-vec (vec4->vec3 ;; vertex -> eye
                           (vec4- eye-pos vertex-coord)))
-               (a-normal (vec3-normalize (vec4->vec3
-                                          (vertex-normal
-                                           (aref (triangle-vertices triangle) 0)))))
+               (a-normal (triangle-normal3 triangle))
                (light-direction (vec3-normalize (vec4->vec3 ;; light-pos -> vertex
                                                  (vec4- vertex-coord light-pos))))
                ;; specular

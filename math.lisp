@@ -319,8 +319,6 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                  ,(/ (aref vec 1) n)
                  ,(/ (aref vec 2) n))))
 
-
-
 (defmacro ndc-x (ndc)
   `(aref ,ndc 0))
 
@@ -435,6 +433,16 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 (defmacro itplt-num (a b pt)
   `(itplt-m + * - ,a ,b ,pt))
 
+(defun interpolate-vec3 (v0 v1 pt)
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (3)) v0 v1)
+           (type single-float pt))
+  (let ((x0 (aref v0 0)) (y0 (aref v0 1)) (z0 (aref v0 2))
+        (x1 (aref v1 0)) (y1 (aref v1 1)) (z1 (aref v1 2)))
+    (make-vec3 (itplt-num x0 x1 pt)
+               (itplt-num y0 y1 pt)
+               (itplt-num z0 z1 pt))))
+
 (defun interpolate-vertex (v1 v2 pt)
   (declare (optimize (speed 3))
            (type single-float pt))
@@ -469,6 +477,17 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   `(/ (- ,b ,a) ,len))
 
 ;;(declaim (inline dvertex))
+
+(defun dvec3 (v0 v1 length)
+  "gradient: (v1-v0)/length"
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (3)) v0 v1)
+           (type integer length))
+  (let ((x0 (aref v0 0)) (y0 (aref v0 1)) (z0 (aref v0 2))
+        (x1 (aref v1 0)) (y1 (aref v1 1)) (z1 (aref v1 2)))
+    (make-vec3 (grad x0 x1 length)
+               (grad y0 y1 length)
+               (grad z0 z1 length))))
 
 (defun dvertex (v1 v2 length)
   "make a vertex gradient for shading"

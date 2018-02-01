@@ -68,6 +68,7 @@
            :clip-line
            :draw-triangle-wire-ndc
            :draw-triangle-flat
+           :draw-triangle-gouraud
            :draw-triangle-phong))
 
 (in-package :naive-software-renderer)
