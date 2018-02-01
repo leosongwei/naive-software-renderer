@@ -11,10 +11,10 @@
   (defparameter *eye* (make-array 3 :element-type 'single-float))
   (defparameter *project-mat*
     (frustum-mat 20 (/ 4 3) 0.1 15))
-  ;;(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny_high.obj"))
-  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
+  (defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny_high.obj"))
+  ;;(defparameter *bunny-mesh* (wavefront-file-to-modelmesh #p"bunny.obj"))
   (defparameter *texture0* (read-image-to-texture "./true.jpeg"))
-  (defparameter *scale* 1.6)
+  (defparameter *scale* 5.0)
   (init-window))
 
 (defun phong-frag (triangle v eye-pos light-pos)
