@@ -329,6 +329,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
   `(aref ,ndc 2))
 
 (defun vec3-normalize (vec)
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (3)) vec))
   (let* ((length (sqrt (+ (expt (aref vec 0) 2)
                           (expt (aref vec 1) 2)
                           (expt (aref vec 2) 2)))))
@@ -342,6 +344,8 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
 ;;             :initial-element 0.0))
 
 (defun vec3-dot (vec1 vec2)
+  (declare (optimize (speed 3))
+           (type (simple-array single-float (3)) vec1 vec2))
   (+ (* (aref vec1 0) (aref vec2 0))
      (* (aref vec1 1) (aref vec2 1))
      (* (aref vec1 2) (aref vec2 2))))

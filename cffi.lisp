@@ -68,7 +68,7 @@
 (defun get-sdl2-surface-pixels (sdl2-surface)
   (sdl-surface-pixels (sdl2-ffi::sdl-surface-ptr sdl2-surface)))
 
-
+(declaim (inline map-color))
 (defun map-color (r g b &optional (a 255))
   (declare (type (unsigned-byte 8) r g b a))
   (let ((result (+ (ash r 24) (ash g 16) (ash b 8) a)))

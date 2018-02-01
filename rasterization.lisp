@@ -36,10 +36,12 @@
               :initial-element 1.0))
 
 (defun vec3-int-color (vec3)
+  (declare (type (simple-array single-float (3)) vec3))
   (let ((clamped (vec3-clamp vec3)))
-    (map-color (floor (* 255 (aref clamped 0)))
-               (floor (* 255 (aref clamped 1)))
-               (floor (* 255 (aref clamped 2))))))
+    (declare (type (simple-array single-float (3)) clamped))
+    (map-color (round (* 255.0 (aref clamped 0)))
+               (round (* 255.0 (aref clamped 1)))
+               (round (* 255.0 (aref clamped 2))))))
 
 (defmacro swap (a b)
   (let ((c (gensym)))
