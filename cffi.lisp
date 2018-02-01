@@ -9,7 +9,13 @@
 (cffi:defcfun "get_cpu_count" :int)
 
 (cffi:defcfun "SDL_Surface_pixels" :pointer
-  (sdl2-surface-prt :pointer))
+  (sdl2-surface-ptr :pointer))
+
+(cffi:defcfun "SDL_use_surface" :pointer
+  (sdl2-surface-ptr :pointer))
+
+(cffi:defcfun "SDL_freeze_surface" :void
+  (sdl2-surface-ptr :pointer))
 
 (cffi:defcfun "c_draw_line" :void
   (x0 :int) (y0 :int) (x1 :int) (y1 :int)
