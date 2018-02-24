@@ -231,6 +231,28 @@ V4 : transpose(matrix([1.0, 2.0, 3.0, 4.0]));
                   (0.0            0.0   ,a   ,b)
                   (0.0            0.0  -1.0  0.0)))))
 
+(defun ortho-mat (w h far)
+  "
+  -----------------------
+  |                      |
+  |                      |
+  |           . (0, 0)   | h
+  |                      |
+  |                      |
+  -----------------------.
+  w           (w/2, -h/2)
+  near plane = 0, far plane = far"
+  (declare (type single-float w h far))
+  (let* ((2/w (float (/ 2 w)))
+         (2/h (float (/ 2 h)))
+         (1/far (float (/ -1 far))))
+    (make-array '(4 4) :element-type 'single-float
+                :initial-contents
+                `((,2/w 0.0 0.0 0.0)
+                  (0.0 ,2/h 0.0 0.0)
+                  (0.0 0.0 ,1/far 0.0)
+                  (0.0 0.0 0.0 1.0)))))
+
 ;; ---------------------------------------------------------
 ;; Vector Calculation
 ;; ---------------------------------------------------------
